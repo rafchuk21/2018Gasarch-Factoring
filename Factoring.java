@@ -150,3 +150,21 @@ public class Factoring {
 	}
 	
 }
+
+//Runner
+import java.math.BigInteger;
+import java.util.Scanner;
+public class PrimeFactors {	
+	public static void main (String args[]) {
+		System.out.println("Enter a number.");
+		Scanner scan = new Scanner(System.in);
+		Factoring test1 = new Factoring(scan.nextBigInteger());
+		//System.out.println(test1.naive());
+		test1.gcdtesting();
+		System.out.println("Enter another number for extended gcd.");
+		System.out.println(test1.extendedgcd(BigInteger.valueOf(scan.nextInt())));
+		
+		scan.close();
+	}
+}
+
