@@ -1,6 +1,7 @@
-import java.math.BigDecimal;
+/*import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Factoring {
 	private BigInteger test;
@@ -152,8 +153,6 @@ public class Factoring {
 }
 
 //Runner
-import java.math.BigInteger;
-import java.util.Scanner;
 public class PrimeFactors {	
 	public static void main (String args[]) {
 		System.out.println("Enter a number.");
@@ -168,3 +167,4 @@ public class PrimeFactors {
 	}
 }
 
+*/
