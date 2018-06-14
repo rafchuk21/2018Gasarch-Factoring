@@ -166,5 +166,4 @@ public class PrimeFactors {
 		scan.close();
 	}
 }
-
 */

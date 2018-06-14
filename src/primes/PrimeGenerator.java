@@ -37,7 +37,7 @@ public class PrimeGenerator {
         }
 
         long endTime = System.nanoTime();
-        return new Results(endTime - startTime, modCount, primes, "modulos", "Primes:");
+        return new Results(endTime - startTime, modCount, primes, "modulos", "Primes");
     }
 
     /**
@@ -82,7 +82,7 @@ public class PrimeGenerator {
                 }
             }
             long endTime = System.nanoTime();
-            return new Results(endTime - startTime, operations, primes, "array accesses", "Primes:");
+            return new Results(endTime - startTime, operations, primes, "array accesses", "Primes");
         } else { // otherwise use other method for larger array sets
             return largeSieveOfEratosthenes(limit);
         }
@@ -94,11 +94,11 @@ public class PrimeGenerator {
     }
 
     public static void main(String[] args) {
-        Results naiveResult = naivePrimeGenerator(BigInteger.valueOf(40000));
+        Results naiveResult = naivePrimeGenerator(BigInteger.valueOf(3));
         System.out.println(naiveResult.toString());
 
-        Results sieveResult = sieveOfEratosthenes(10000000);
-        System.out.println(sieveResult.toString(250));
+        Results sieveResult = sieveOfEratosthenes((long)(Integer.MAX_VALUE/64));
+        System.out.println(sieveResult.toString(400));
         System.out.println("Largest Prime: " + ((ArrayList<Long>)sieveResult.getResult()).get(((ArrayList<Long>)sieveResult.getResult()).size()-1));
     }
 }
