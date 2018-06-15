@@ -21,7 +21,7 @@ public class NaiveFactoring {
                 break;
             }
         }
-        if (toFactor.compareTo(BigInteger.ONE)!=0) { factors.add(toFactor); }
+        if (toFactor.compareTo(primeBound) < 0) { factors.add(toFactor); } else {factors.add(BigInteger.ONE);}
         long endTime = System.nanoTime();
         return new Results(endTime - startTime, mods, factors, "modulos", "Factor");
     }
@@ -31,6 +31,6 @@ public class NaiveFactoring {
     }
 
     public static void main(String[] args) {
-        System.out.println(naiveFactor(BigInteger.valueOf(413158511).multiply(BigInteger.valueOf(413158511))));
+        System.out.println(naiveFactor(BigInteger.valueOf(413158511).multiply(BigInteger.valueOf(413158511)), BigInteger.valueOf(400)));
     }
 }
