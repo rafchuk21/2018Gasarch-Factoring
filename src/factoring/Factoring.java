@@ -1,8 +1,7 @@
-/*import java.math.BigDecimal;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Scanner;
-
 public class Factoring {
 	private BigInteger test;
 	
@@ -10,45 +9,7 @@ public class Factoring {
 		test = a;
 	}
 	
-	public ArrayList<Integer> naive() {
-		long startTime=System.nanoTime();
-		int count=0;
-		ArrayList<BigInteger> nums = new ArrayList<BigInteger>();
-		nums.add(BigInteger.TWO); 
-		for (BigInteger i = BigInteger.valueOf(3); i.compareTo(BigInteger.valueOf(1000000))<0; i=i.add(BigInteger.TWO)) {
-			nums.add(i);
-		}
-			
-		for (BigInteger i = BigInteger.ZERO; i.compareTo(BigInteger.valueOf(nums.size()))<0; i=i.add(BigInteger.ONE)) {
-			for (BigInteger j = i.add(BigInteger.ONE); j.compareTo(BigInteger.valueOf(nums.size()))<0; j=j.add(BigInteger.ONE)) {
-				if(nums.get(j.intValueExact()).mod(nums.get(i.intValueExact())).equals(BigInteger.ZERO)) {
-					nums.remove(j.intValueExact());
-					count++;
-				}
-			}
-			System.out.println(i);
-		}
-		System.out.println(nums);
-		long timeElapsed=System.nanoTime()-startTime;
-		System.out.println("Mod was performed " + count + " times.");
-		System.out.println("Took " + timeElapsed + " nanoseconds.");
-		//1,000,000 mod-421502 and nanoseconds-497973274070 
-				
-		ArrayList<Integer> factors = new ArrayList<Integer>();
-		for (BigInteger i = BigInteger.ZERO; nums.get(i.intValueExact()).compareTo(BigInteger.valueOf((int)Math.sqrt(test.doubleValue())))<0; i=i.add(BigInteger.ONE)) {
-			if(test.mod(nums.get(i.intValueExact())).equals(BigInteger.ZERO)) {
-				factors.add(nums.get(i.intValueExact()).intValueExact());
-			}
-		}
-		return factors;
-	}
-
-	
-	
-	
-	
-	public ArrayList<BigInteger> gcdtesting() {
-		long startTime=System.nanoTime();
+	public ArrayList<BigInteger> gcdtesting() { 
 		boolean cont = true; 
 		BigInteger x = ((new BigDecimal(test)).multiply(new BigDecimal(Math.random()))).toBigInteger();
 		//BigInteger x = BigInteger.valueOf((int)(test.doubleValue()*Math.random()));
@@ -65,28 +26,24 @@ public class Factoring {
 				}
 			}
 		}
-		System.out.println(xvalues);
+		//System.out.println(xvalues);
 		
 		ArrayList<BigInteger> gcdt = new ArrayList<BigInteger>();
-		int index = -1;
+		//int index = -1;
 		int index1 = 1;
 		int index2 = 2;
 		do {
 			BigInteger testnum = xvalues.get(index2-1).subtract(xvalues.get(index1-1)).abs();
 			BigInteger temp = test.gcd(testnum);
-			gcdt.add(temp);
+			if (temp.compareTo(BigInteger.ONE)!=0) {
+				gcdt.add(temp);
+			}
 			index1++;
 			index2=index1*2;
-			index++;
-		} while (index2<xvalues.size() && gcdt.get(index).equals(BigInteger.ONE));
-		System.out.println(gcdt);
+			//index++;
+		} while (index2<xvalues.size() && gcdt.size()<1 /*&& gcdt.get(gcdt.size()-1).compareTo(BigInteger.ONE)==0*/);
+		//System.out.println(gcdt);
 		
-		if (gcdt.get(gcdt.size()-1).compareTo(BigInteger.ONE)==0) {
-			gcdtesting();
-		}
-		
-		long timeElapsed=System.nanoTime()-startTime;
-		System.out.println("Took " + timeElapsed + " nanoseconds.");
 		return gcdt;
 	}
 	
@@ -101,8 +58,8 @@ public class Factoring {
 			x=y;
 			y=swap;
 		}
-		if (x.mod(y).compareTo(BigInteger.ZERO)==0) {
-			return "They are multiples of each other.";
+		if (x.gcd(y).compareTo(BigInteger.ONE)!=0) {
+			return "There is no inverse.";
 		}
 		ArrayList<String> snums1 = new ArrayList<String>();
 		ArrayList<String> snums2 = new ArrayList<String>();
@@ -147,23 +104,15 @@ public class Factoring {
 				}
 			}
 		}
-		return num1+"("+num1coefficient+")"+"-"+num2+"("+num2coefficient+")="+remainder.get(remainder.size()-1); 
+		return num1+"("+num1coefficient+")"+"-"+num2+"("+num2coefficient+")="+remainder.get(remainder.size()-1)+"\nThe inverse of "+num2+" is " +(new BigInteger(num1).subtract(num2coefficient)); 
 	}
 	
-}
-
-//Runner
-public class PrimeFactors {	
 	public static void main (String args[]) {
-		System.out.println("Enter a number.");
+		System.out.println("Enter a number");
 		Scanner scan = new Scanner(System.in);
 		Factoring test1 = new Factoring(scan.nextBigInteger());
-		//System.out.println(test1.naive());
-		test1.gcdtesting();
 		System.out.println("Enter another number for extended gcd.");
-		System.out.println(test1.extendedgcd(BigInteger.valueOf(scan.nextInt())));
-		
+		System.out.println(test1.extendedgcd(BigInteger.valueOf(scan.nextInt())));		
 		scan.close();
 	}
 }
-*/
