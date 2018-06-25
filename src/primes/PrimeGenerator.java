@@ -10,9 +10,10 @@ public class PrimeGenerator {
      *
      * @param limit limit for generating primes
      * @return generated primes as an ArrayList of longs
+     * @author rafi
      */
     public static Results naivePrimeGenerator(BigInteger limit) {
-        if (limit.compareTo(BigInteger.TWO) < 0) {
+        if (limit.compareTo(BigInteger.valueOf(2)) < 0) {
             throw new IllegalArgumentException();
         }
         long startTime = System.nanoTime();
@@ -45,6 +46,7 @@ public class PrimeGenerator {
      * If limit > 2^31, uses another method with a limit up to 2^62
      * @param limit limit for generating primes
      * @return generated primes as an ArrayList of longs
+     * @author rafi
      */
     public static Results sieveOfEratosthenes(long limit) {
         if (limit < 2) {
@@ -97,7 +99,7 @@ public class PrimeGenerator {
         Results naiveResult = naivePrimeGenerator(BigInteger.valueOf(3));
         System.out.println(naiveResult.toString());
 
-        Results sieveResult = sieveOfEratosthenes((long)(Integer.MAX_VALUE/64));
+        Results sieveResult = sieveOfEratosthenes((long)(12000));
         System.out.println(sieveResult.toString(400));
         System.out.println("Largest Prime: " + ((ArrayList<Long>)sieveResult.getResult()).get(((ArrayList<Long>)sieveResult.getResult()).size()-1));
     }

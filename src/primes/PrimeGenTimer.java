@@ -14,9 +14,9 @@ public class PrimeGenTimer {
             e.printStackTrace();
         }
         Results r;
-        for (int i = 2; i < 100000; i++) {
+        for (int i = 2; i < 100000000; i+=10) {
             r = PrimeGenerator.sieveOfEratosthenes(i);
-            pw.println(r.getDuration());
+            pw.println(r.getOperations());
         }
         pw.close();
     }

@@ -1,4 +1,5 @@
 package factoring;
+import util.BigIntegerUtils;
 import util.Results;
 import primes.PrimeGenerator;
 
@@ -6,6 +7,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 
 public class NaiveFactoring {
+
+    /**
+     * Checks all the primes from 2 to an input primeBound and prime factors input toFactor.
+     * @param toFactor number to factor with naive method
+     * @param primeBound highest prime number to check as prime
+     * @return Result containing an ArrayList of BigIntegers
+     */
     public static Results naiveFactor(BigInteger toFactor, BigInteger primeBound) {
         long startTime = System.nanoTime();
         ArrayList<Long> primes = (ArrayList<Long>) PrimeGenerator.sieveOfEratosthenes(primeBound.longValue()).getResult();
@@ -26,11 +34,16 @@ public class NaiveFactoring {
         return new Results(endTime - startTime, mods, factors, "modulos", "Factor");
     }
 
+    /**
+     * If no given primeBound, defaults to primeBound = sqrt(toFactor)
+     * @param toFactor Number to find factors of
+     * @return Result containing ArrayList of BigIntegers
+     */
     public static Results naiveFactor(BigInteger toFactor) {
-        return naiveFactor(toFactor, toFactor.sqrt().add(BigInteger.ONE));
+        return naiveFactor(toFactor, BigIntegerUtils.sqrt(toFactor).add(BigInteger.ONE));
     }
 
     public static void main(String[] args) {
-        System.out.println(naiveFactor(BigInteger.valueOf(413158511).multiply(BigInteger.valueOf(413158511)), BigInteger.valueOf(400)));
+        System.out.println(naiveFactor(BigInteger.valueOf(279).multiply(BigInteger.valueOf(263))));
     }
 }
