@@ -48,6 +48,10 @@ public class BigIntegerUtils {
         return randBigInteger(upperBound.subtract(lowerBound)).add(lowerBound);
     }
 
+    public static boolean isEven(BigInteger n) {
+        return (n.mod(BigInteger.valueOf(2)).compareTo(BigInteger.ZERO) == 0);
+    }
+
     public static void main(String[] args) {
         int n = 12;
         int[] results = new int[n + 1];
