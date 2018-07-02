@@ -2,6 +2,8 @@ package primes;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import util.Results;
 
 public class PrimeGenerator {
@@ -28,6 +30,35 @@ public class PrimeGenerator {
                 modCount++;
                 // if the number is divisible by the prime
                 if (i.mod(j).equals(BigInteger.ZERO)) {
+                    isPrime = false; // mark it as not prime
+                    break;
+                }
+            }
+            if (isPrime) {
+                primes.add(i);
+            } // if the number never got marked as non-prime, add it to primes list
+        }
+
+        long endTime = System.nanoTime();
+        return new Results(endTime - startTime, modCount, primes, "modulos", "Primes");
+    }
+
+    public static Results naivePrimeGenerator(long limit) {
+        if (limit < 2) {
+            throw new IllegalArgumentException();
+        }
+        long startTime = System.nanoTime();
+        long modCount = 0;
+        ArrayList<Long> primes = new ArrayList<Long>();
+        primes.add((long) 2);
+        // for every integer from 3 to the limit
+        for (long i = 3; i < limit; i++) {
+            boolean isPrime = true; // assume the number is prime for now
+            // for every number already added to the primes list
+            for (long j : primes) {
+                modCount++;
+                // if the number is divisible by the prime
+                if (i % j == 0) {
                     isPrime = false; // mark it as not prime
                     break;
                 }
@@ -95,12 +126,50 @@ public class PrimeGenerator {
         return null;
     }
 
-    public static void main(String[] args) {
-        Results naiveResult = naivePrimeGenerator(BigInteger.valueOf(3));
-        System.out.println(naiveResult.toString());
+    /**
+     * Generates a list of primes from 2 to limit using the fact that (2n+1) is prime iff n is not of the form i+j+2ij
+     * @param limit
+     * @return Results of sieve
+     */
+    public static Results sieveOfSundaram(int limit) {
+        if (limit < 2) {
+            throw new IllegalArgumentException();
+        }
+        long startTime = System.nanoTime();
+        int arrayAccesses = 0;
+        boolean[] nPrimality = new boolean[limit / 2];
 
+        for (int i = 1; i < nPrimality.length; i++) {
+            for (int j = 1; i + j + 2*i*j < nPrimality.length && j <= i; j++) {
+                nPrimality[i + j + 2*i*j] = true;
+                arrayAccesses++;
+            }
+        }
+        ArrayList<Integer> primes = new ArrayList<Integer>();
+        primes.add(2);
+        for (int i = 1; i < nPrimality.length; i++) {
+            if (!nPrimality[i]) {primes.add(i * 2 + 1);}
+            arrayAccesses++;
+        }
+        long endTime = System.nanoTime();
+        return new Results(endTime - startTime, arrayAccesses, primes, "array accesses", "Primes");
+    }
+
+    public static void main(String[] args) {
+        System.gc();
+        Results naiveResult = naivePrimeGenerator(BigInteger.valueOf(12000));
+        System.out.println(naiveResult.toString(400));
+
+        System.gc();
         Results sieveResult = sieveOfEratosthenes((long)(12000));
-        System.out.println(sieveResult.toString(400));
+        System.out.println("Sieve of Eratosthenes:");
+        System.out.print(sieveResult.toString(400));
         System.out.println("Largest Prime: " + ((ArrayList<Long>)sieveResult.getResult()).get(((ArrayList<Long>)sieveResult.getResult()).size()-1));
+
+        System.gc();
+        Results sundaramResult = sieveOfSundaram(12000);
+        System.out.println("\nSieve of Sundaram:");
+        System.out.print(sundaramResult.toString(400));
+        System.out.println("Largest Prime: " + ((ArrayList<Long>)sundaramResult.getResult()).get(((ArrayList<Long>)sundaramResult.getResult()).size()-1));
     }
 }
