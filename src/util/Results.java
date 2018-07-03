@@ -35,8 +35,7 @@ public class Results {
     public String getResultType() { return resultType; }
 
     public String toString() {
-        return String.format("%d nanoseconds, %.3f seconds%n%d %s%n", duration,
-                duration/1000000000.0, operations, operationType) + resultType + ": " + result.toString() + "\n";
+        return this.toString(500);
     }
 
     /**
@@ -46,6 +45,6 @@ public class Results {
      */
     public String toString(int carLimit) {
         return String.format("%d nanoseconds, %.3f seconds%n%d %s%n", duration,
-                duration/1000000000.0, operations, operationType) + resultType + ": " + result.toString().substring(0,carLimit) + "\n";
+                duration/1000000000.0, operations, operationType) + resultType + ": " + result.toString().substring(0,Math.min(result.toString().length(), carLimit)) + "\n";
     }
 }
