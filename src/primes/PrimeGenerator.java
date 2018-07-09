@@ -247,6 +247,5 @@ public class PrimeGenerator {
         System.gc();
         //Results largeSieve = largeSieveOfEratosthenes(BigInteger.valueOf(Integer.MAX_VALUE/8));
         //System.out.println(largeSieve.toString(400));
-        System.out.println(BigInteger.valueOf(292647886).mod(BigInteger.valueOf(Integer.MAX_VALUE)));
     }
 }

@@ -107,7 +107,7 @@ public class Factoring {
 		}
 		return num1+"("+num1coefficient+")"+"-"+num2+"("+num2coefficient+")="+remainder.get(remainder.size()-1)+"\nThe inverse of "+num2+" is " +(new BigInteger(num1).subtract(num2coefficient)); 
 	}
-	
+
 	public static void main (String args[]) {
 		System.out.println("Enter a number");
 		Scanner scan = new Scanner(System.in);

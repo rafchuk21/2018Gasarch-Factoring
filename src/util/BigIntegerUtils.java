@@ -55,9 +55,8 @@ public class BigIntegerUtils {
     public static void main(String[] args) {
         int n = 12;
         int[] results = new int[n + 1];
-        for (int i = 0; i < 10000; i++) {
-            results[randBigInteger(BigInteger.valueOf(2), BigInteger.valueOf(n)).intValue()] += 1;
+        for (int i = 0; i < 100; i++) {
+            System.out.println(i + ": " + sqrt(BigInteger.valueOf(i)).toString());
         }
-        System.out.println(Arrays.toString(results));
     }
 }
