@@ -63,7 +63,9 @@ public class FactoringMethods {
         //System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("52866631"))));
         System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("1743035045201245231"))));
         BigInteger[] pollardRhoFactoring = pollardRhoFactoring(new BigInteger("1743035045201245231"));
+        System.out.println(Arrays.toString(pollardRhoFactoring));
         while (pollardRhoFactoring[0].compareTo(BigInteger.ONE) == 0) {
+            pollardRhoFactoring = pollardRhoFactoring(new BigInteger("1743035045201245231"));
             System.out.println(Arrays.toString(pollardRhoFactoring));
         }
     }
