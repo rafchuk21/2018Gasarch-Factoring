@@ -1,8 +1,8 @@
-package factoring;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Scanner;
+
 public class Factoring {
 	private BigInteger test;
 	
@@ -10,43 +10,139 @@ public class Factoring {
 		test = a;
 	}
 	
-	public ArrayList<BigInteger> gcdtesting() { 
-		boolean cont = true; 
-		BigInteger x = ((new BigDecimal(test)).multiply(new BigDecimal(Math.random()))).toBigInteger();
-		//BigInteger x = BigInteger.valueOf((int)(test.doubleValue()*Math.random()));
-		ArrayList<BigInteger> xvalues = new ArrayList<BigInteger>();
-		xvalues.add(x);
-		while (cont && xvalues.size()<500) {
-			x=((x.multiply(x)).add(BigInteger.ONE)).mod(test);
-			xvalues.add(x);
-			for (int i=0; i<xvalues.size(); i++) {
-				for (int j=i+1; j<xvalues.size(); j++) {
-					if(xvalues.get(i).equals(xvalues.get(j))) {
-						cont=false;
-					}
-				}
+	public Results naivePrimeGenerator(BigInteger limit) {
+        if (limit.compareTo(BigInteger.TWO)<0) {
+            throw new IllegalArgumentException();
+        }
+        long startTime = System.nanoTime();
+        long modCount = 0;
+        ArrayList<BigInteger> primes = new ArrayList<BigInteger>();
+        primes.add(BigInteger.valueOf(2));
+        for (BigInteger i = BigInteger.valueOf(3); i.compareTo(limit) < 0; i = i.add(BigInteger.TWO)) {
+            boolean isPrime = true;
+            for (BigInteger j : primes) {
+                modCount++;
+                if (i.mod(j).equals(BigInteger.ZERO)) {
+                    isPrime = false; 
+                    break;
+                }
+            }
+            if (isPrime) {
+                primes.add(i);
+            } 
+        }
+        long endTime = System.nanoTime();
+        return new Results(endTime - startTime, modCount, primes, "modulos", "Primes");
+    }
+	
+	
+	
+	
+	
+	
+	public Results sieveOfEratosthenes(long limit) {
+        if (limit < 2) {
+            throw new IllegalArgumentException();
+        }
+        long startTime = System.nanoTime();
+        long operations = 0;
+        int intLimit = (int) limit;
+        boolean[] numberPrimality = new boolean[intLimit];
+        for (int i = 2; i < numberPrimality.length; i++) {
+            operations++;
+            numberPrimality[i] = true;
+        }
+        for (int i = 2; i < (int) Math.pow(numberPrimality.length, .5) + 1; i++) {
+            if (numberPrimality[i]) {
+                for (int j = (int) Math.pow(i,2); j < numberPrimality.length; j += i) {
+                    operations++;
+                    numberPrimality[j] = false;
+                }
+            }
+        }
+        ArrayList<Long> primes = new ArrayList<Long>();
+        for (int i = 2; i < numberPrimality.length; i++) {
+            operations++;
+            if (numberPrimality[i]) {
+                primes.add((long)i);
+            }
+        }
+        long endTime = System.nanoTime();
+        return new Results(endTime - startTime, operations, primes, "array accesses", "Primes");
+    }
+
+	
+	
+	
+		
+	public boolean fermatPrimalityTest(int iterations) {
+        if (test.compareTo(BigInteger.ONE)<=0) {
+            return false;
+        }
+        BigInteger random;
+        for (int i = 0; i < iterations; i++) {
+            random = ((new BigDecimal(test.subtract(BigInteger.ONE))).multiply(new BigDecimal(Math.random()))).toBigInteger().add(BigInteger.ONE);
+            if (!(random.modPow(test.subtract(BigInteger.ONE),test).compareTo(BigInteger.ONE)==0)) {
+            	return false;
+            }
+        }
+        return true;
+    }
+	
+	
+	
+	
+	
+	public boolean millerRabinPrimalityTest(int iterations) {
+        if (test.compareTo(BigInteger.ONE)<=0) {
+            return false;
+        }
+        if (test.compareTo(BigInteger.valueOf(2))!=0 && test.mod(BigInteger.valueOf(2)).compareTo(BigInteger.ZERO)==0) {
+            return false;
+        }
+        BigInteger s = test.subtract(BigInteger.ONE); 
+        while (BigIntegerUtils.isEven(s)) {
+            s = s.divide(BigInteger.valueOf(2));
+        }
+        BigInteger random, temp, mod;
+        for (int i = 0; i < iterations; i++) {
+            random = ((new BigDecimal(test.subtract(BigInteger.ONE))).multiply(new BigDecimal(Math.random()))).toBigInteger().add(BigInteger.ONE);
+            temp = s;
+            mod = random.modPow(temp,test);
+            while (temp.compareTo(test.subtract(BigInteger.ONE))!=0 && mod.compareTo(test.subtract(BigInteger.ONE))!=0 && mod.compareTo(BigInteger.ONE)!=0) {
+                mod = mod.multiply(mod).mod(test);
+                temp = temp.multiply(BigInteger.valueOf(2));
+            }
+            if (mod.compareTo(test.subtract(BigInteger.ONE))!=0 && temp.mod(BigInteger.valueOf(2)).compareTo(BigInteger.ZERO)==0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+	
+	
+	
+	
+	public BigInteger Pollard() {
+		BigInteger x = ((new BigDecimal(test.subtract(BigInteger.ONE))).multiply(new BigDecimal(Math.random()))).toBigInteger().add(BigInteger.ONE);
+		BigInteger c = ((new BigDecimal(test.subtract(BigInteger.ONE))).multiply(new BigDecimal(Math.random()))).toBigInteger().add(BigInteger.ONE);
+		BigInteger y = (x.multiply(x).add(c)).mod(test);
+		BigInteger temp = null;
+		boolean cont = true;
+		while (cont) {
+			x=(x.multiply(x).add(c)).mod(test);
+			y=(y.multiply(y).add(c)).mod(test);
+			y=(y.multiply(y).add(c)).mod(test);
+			temp = (x.subtract(y)).gcd(test);
+			if (temp.compareTo(BigInteger.ONE)!=0 && temp.compareTo(test)!=0) {
+				cont=false;
+				return temp;
 			}
 		}
-		//System.out.println(xvalues);
-		
-		ArrayList<BigInteger> gcdt = new ArrayList<BigInteger>();
-		//int index = -1;
-		int index1 = 1;
-		int index2 = 2;
-		do {
-			BigInteger testnum = xvalues.get(index2-1).subtract(xvalues.get(index1-1)).abs();
-			BigInteger temp = test.gcd(testnum);
-			if (temp.compareTo(BigInteger.ONE)!=0) {
-				gcdt.add(temp);
-			}
-			index1++;
-			index2=index1*2;
-			//index++;
-		} while (index2<xvalues.size() && gcdt.size()<1 /*&& gcdt.get(gcdt.size()-1).compareTo(BigInteger.ONE)==0*/);
-		//System.out.println(gcdt);
-		
-		return gcdt;
+		return temp;
 	}
+	
 	
 	
 	
@@ -107,13 +203,44 @@ public class Factoring {
 		}
 		return num1+"("+num1coefficient+")"+"-"+num2+"("+num2coefficient+")="+remainder.get(remainder.size()-1)+"\nThe inverse of "+num2+" is " +(new BigInteger(num1).subtract(num2coefficient)); 
 	}
-
+	
+	
+	
+	
+	public ArrayList<BigInteger> tofactor() {
+		BigInteger temp = test;
+		ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
+		ArrayList<Long> primes = (ArrayList<Long>) PrimeGenerator.sieveOfEratosthenes(100).getResult();
+		for (int i=0; i<primes.size(); i++) {
+			if (test.mod(BigInteger.valueOf(primes.get(i))).compareTo(BigInteger.ZERO)==0) {
+				test=test.divide(BigInteger.valueOf(primes.get(i)));
+				factors.add(BigInteger.valueOf(primes.get(i)));
+				i--;
+			}
+		}
+		while (!(fermatPrimalityTest(8) && millerRabinPrimalityTest(8))) {
+			if (test.compareTo(BigInteger.ONE)==0) {
+				test=temp;
+				return factors;
+			}
+			BigInteger factor = Pollard();
+			test=test.divide(factor);
+			factors.add(factor);
+		}
+		if (fermatPrimalityTest(8) && millerRabinPrimalityTest(8)) {
+			factors.add(test);
+		}
+		test=temp;
+		return factors;
+	}
+	
 	public static void main (String args[]) {
-		System.out.println("Enter a number");
+		System.out.println("Enter a number.");
 		Scanner scan = new Scanner(System.in);
-		Factoring test1 = new Factoring(scan.nextBigInteger());
+		Factoring num = new Factoring(scan.nextBigInteger());
+		System.out.println(num.tofactor());
 		System.out.println("Enter another number for extended gcd.");
-		System.out.println(test1.extendedgcd(BigInteger.valueOf(scan.nextInt())));		
+		System.out.println(num.extendedgcd(BigInteger.valueOf(scan.nextInt())));
 		scan.close();
 	}
 }
