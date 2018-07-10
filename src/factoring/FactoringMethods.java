@@ -44,24 +44,26 @@ public class FactoringMethods {
         long startTime = System.nanoTime();
         BigInteger[] factors = new BigInteger[2];
         BigInteger b = BigIntegerUtils.randBigInteger(BigInteger.ONE, n.subtract(BigInteger.valueOf(2)));
-        BigInteger s = BigIntegerUtils.randBigInteger(n.subtract(BigInteger.ONE));
+        BigInteger s = BigIntegerUtils.randBigInteger(n);
         BigInteger A = s; BigInteger B = s;
         BigInteger g = BigInteger.ONE;
+        System.out.println(b + ", " + s);
         while (g.compareTo(BigInteger.ONE) == 0) {
-            A = A.multiply(A).add(b);
-            B = b.add((B.multiply(B).add(b)).pow(2));
+            //System.out.println(A + ", " + B);
+            A = (A.multiply(A).add(b)).mod(n);
+            B = b.add((B.multiply(B).add(b)).mod(n).pow(2)).mod(n);
             g = A.subtract(B).gcd(n);
         }
         if (g.compareTo(n) < 0) {factors[0] = g; factors[1] = n.divide(g);}
         else {factors[1] = n; factors[0] = BigInteger.ONE;}
         long endTime = System.nanoTime();
-        System.out.println("Pollard runtime:" + (endTime - startTime) + " nanoseconds");
+        System.out.println("Pollard runtime: " + (endTime - startTime) + " nanoseconds");
         return factors;
     }
 
     public static void main(String[] args) {
         //System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("52866631"))));
-        System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("1743035045201245231"))));
+        //System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("1743035045201245231"))));
         BigInteger[] pollardRhoFactoring = pollardRhoFactoring(new BigInteger("1743035045201245231"));
         System.out.println(Arrays.toString(pollardRhoFactoring));
         while (pollardRhoFactoring[0].compareTo(BigInteger.ONE) == 0) {
