@@ -196,20 +196,53 @@ public class PrimeGenerator {
      * @param n
      * @return
      */
-    public static Results wheelGenerator(BigInteger n, int wheel, int iterations) {
+    public static Results wheelGenerator(BigInteger n, int wheel, int iterations, int smallerPrimeLimit) {
         System.out.println(n.toString());
+        long startTime = System.nanoTime();
+        BigInteger wheelBigInt = BigInteger.valueOf(wheel);
+        ArrayList<BigInteger> primes = new ArrayList<BigInteger>();
+        System.out.println("Coprimes generating");
+        Results coprimeResults = CoprimeGenerator.naiveCoprimeGenerator(BigInteger.valueOf(wheel));
+        ArrayList<BigInteger> coprimes = (ArrayList<BigInteger>) coprimeResults.getResult();
+        System.out.println("Coprimes generated");
+        ArrayList<Long> smallerPrimes = (ArrayList<Long>) sieveOfEratosthenes((long) smallerPrimeLimit).getResult();
+        for (BigInteger i = n.divide(wheelBigInt); i.multiply(wheelBigInt).compareTo(n.add(n)) < 0; i = i.add(BigInteger.ONE)) {
+            System.out.println(i.multiply(wheelBigInt).toString());
+            for (BigInteger cp : coprimes) {
+                BigInteger p = i.multiply(wheelBigInt).add(cp);
+                //System.out.println(p.toString());
+                if (p.compareTo(n) > 0) {
+                    if (PrimeTester.modifiedMillerRabinTest(p, iterations, smallerPrimes))
+                        primes.add(p);
+                }
+            }
+        }
+        long endTime = System.nanoTime();
+        return new Results(endTime - startTime, 0, primes, "N/A", "Primes");
+    }
+
+    /**
+     * Generates the first numPrimes primes between given n and 2n
+     * @param n
+     * @return
+     */
+    public static Results wheelGenerator(int numPrimes, BigInteger n, int wheel, int iterations, int smallerPrimeLimit) {
         long startTime = System.nanoTime();
         BigInteger wheelBigInt = BigInteger.valueOf(wheel);
         ArrayList<BigInteger> primes = new ArrayList<BigInteger>();
         Results coprimeResults = CoprimeGenerator.naiveCoprimeGenerator(BigInteger.valueOf(wheel));
         ArrayList<BigInteger> coprimes = (ArrayList<BigInteger>) coprimeResults.getResult();
+        ArrayList<Long> smallerPrimes = (ArrayList<Long>) sieveOfEratosthenes((long) smallerPrimeLimit).getResult();
         for (BigInteger i = n.divide(wheelBigInt); i.multiply(wheelBigInt).compareTo(n.add(n)) < 0; i = i.add(BigInteger.ONE)) {
             for (BigInteger cp : coprimes) {
                 BigInteger p = i.multiply(wheelBigInt).add(cp);
-                if (p.compareTo(n) > 0)
-                    if (PrimeTester.millerRabinPrimalityTest(p, iterations))
+                if (p.compareTo(n) > 0) {
+                    if (PrimeTester.modifiedMillerRabinTest(p, iterations, smallerPrimes))
                         primes.add(p);
+                }
+                if (primes.size() >= numPrimes) break;
             }
+            if (primes.size() >= numPrimes) break;
         }
         long endTime = System.nanoTime();
         return new Results(endTime - startTime, 0, primes, "N/A", "Primes");
@@ -222,6 +255,22 @@ public class PrimeGenerator {
 
     public static Results wheelGenerator(BigInteger n, int wheel) {
         return wheelGenerator(n, wheel, 16);
+    }
+
+    public static Results wheelGenerator(BigInteger n, int wheel, int iterations) {
+        return wheelGenerator(n, wheel, iterations, 1000);
+    }
+
+    public static Results wheelGenerator(int numPrimes, BigInteger n) {
+        return wheelGenerator(numPrimes, n, 30);
+    }
+
+    public static Results wheelGenerator(int numPrimes, BigInteger n, int wheel) {
+        return wheelGenerator(numPrimes, n, wheel, 16);
+    }
+
+    public static Results wheelGenerator(int numPrimes, BigInteger n, int wheel, int iterations) {
+        return wheelGenerator(numPrimes, n, wheel, iterations, 1000);
     }
 
     public static void main(String[] args) {
@@ -247,5 +296,8 @@ public class PrimeGenerator {
         System.gc();
         //Results largeSieve = largeSieveOfEratosthenes(BigInteger.valueOf(Integer.MAX_VALUE/8));
         //System.out.println(largeSieve.toString(400));
+
+        System.out.println(wheelGenerator(1, BigInteger.valueOf(1000000000), 2*3*5*7*11*13).toString(400));
+        System.out.println(wheelGenerator(1, BigInteger.valueOf(1743035028), 2*3*5*7*11*13).toString(400));
     }
 }

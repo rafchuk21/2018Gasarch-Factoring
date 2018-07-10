@@ -2,6 +2,8 @@ package primes;
 
 import util.*;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import primes.PrimeGenerator;
 import java.util.Arrays;
 
 public class PrimeTester {
@@ -14,6 +16,7 @@ public class PrimeTester {
      * @return BigInteger (a^b)%c
      */
     public static BigInteger exponentialMod(BigInteger a, BigInteger b, BigInteger c) {
+        if (b.compareTo(BigInteger.ZERO) == 0) {return BigInteger.ONE;}
         BigInteger tempMultiple = BigInteger.ONE;
         for (BigInteger i = BigInteger.ZERO; i.compareTo(b) < 0; i = i.add(BigInteger.ONE)) {
             tempMultiple = tempMultiple.multiply(a).mod(c);
@@ -83,10 +86,11 @@ public class PrimeTester {
         for (int i = 0; i < iterations; i++) {
             random = BigIntegerUtils.randBigInteger(BigInteger.ONE, p);
             temp = s;
-            mod = exponentialMod(random, temp, p); //a^s%p
+            //mod = exponentialMod(random, temp, p); //a^s%p
+            mod = random.modPow(temp, p);
             while (temp.compareTo(p.subtract(BigInteger.ONE)) != 0 && mod.compareTo(p.subtract(BigInteger.ONE)) != 0 &&
                     mod.compareTo(BigInteger.ONE) != 0) {
-                mod = multiplicativeMod(mod, mod, p);
+                mod = mod.multiply(mod).mod(p);
                 temp = temp.multiply(BigInteger.valueOf(2));
             }
             if (mod.compareTo(p.subtract(BigInteger.ONE)) != 0 && temp.mod(BigInteger.valueOf(2)).compareTo(BigInteger.ZERO) == 0) {
@@ -96,21 +100,21 @@ public class PrimeTester {
         return true;
     }
 
-    public static void main(String[] args) {
-        int[][] primalityTestResults = new int[300][2];
-        boolean result;
-        for (int i = 7; i < 300; i++) {
-            for (int j = 0; j < 100; j++) {
-                result = millerRabinPrimalityTest(BigInteger.valueOf(i), 8);
-                if (result)
-                    primalityTestResults[i][0] += 1;
-                else
-                    primalityTestResults[i][1] += 1;
+    public static boolean modifiedMillerRabinTest(BigInteger p, int iterations, ArrayList<Long> smallerPrimes) {
+        for (Long smallerPrime : smallerPrimes ) {
+            if (p.mod(BigInteger.valueOf(smallerPrime)).compareTo(BigInteger.ZERO) == 0) {
+                return false;
             }
         }
-        for (int i = 0; i < primalityTestResults.length; i++) {
-            System.out.println(i + "\t" + Arrays.toString(primalityTestResults[i]));
-        }
+        return millerRabinPrimalityTest(p, iterations);
+    }
+
+    public static boolean modifiedMillerRabinTest(BigInteger p, int iterations) {
+        return modifiedMillerRabinTest(p, iterations, (ArrayList<Long>) PrimeGenerator.sieveOfEratosthenes(1000).getResult());
+    }
+
+    public static void main(String[] args) {
+        System.out.println(millerRabinPrimalityTest(BigInteger.valueOf(1000000003), 16));
     }
 
 }

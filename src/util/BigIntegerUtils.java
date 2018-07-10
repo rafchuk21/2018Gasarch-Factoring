@@ -26,7 +26,7 @@ public class BigIntegerUtils {
 
     /**
      * generates a random BigInteger on [0, upperBound)
-     * @param upperBound
+     * @param upperBound upper bound of random, exclusive
      * @return
      */
     public static BigInteger randBigInteger(BigInteger upperBound) {
@@ -40,8 +40,8 @@ public class BigIntegerUtils {
 
     /**
      * generates a random BigInteger on [lowerBound, upperBound)
-     * @param lowerBound
-     * @param upperBound
+     * @param lowerBound lower bound of random, inclusive
+     * @param upperBound upper bound of random, exclusive
      * @return
      */
     public static BigInteger randBigInteger(BigInteger lowerBound, BigInteger upperBound) {
