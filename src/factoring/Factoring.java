@@ -1,8 +1,10 @@
-package Factoring;
+package factoring;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Scanner;
+import util.*;
+import primes.PrimeGenerator;
 
 public class Factoring {
 	private BigInteger test;
@@ -12,14 +14,14 @@ public class Factoring {
 	}
 	
 	public Results naivePrimeGenerator(BigInteger limit) {
-        if (limit.compareTo(BigInteger.TWO)<0) {
+        if (limit.compareTo(BigInteger.valueOf(2))<0) {
             throw new IllegalArgumentException();
         }
         long startTime = System.nanoTime();
         long modCount = 0;
         ArrayList<BigInteger> primes = new ArrayList<BigInteger>();
         primes.add(BigInteger.valueOf(2));
-        for (BigInteger i = BigInteger.valueOf(3); i.compareTo(limit) < 0; i = i.add(BigInteger.TWO)) {
+        for (BigInteger i = BigInteger.valueOf(3); i.compareTo(limit) < 0; i = i.add(BigInteger.valueOf(2))) {
             boolean isPrime = true;
             for (BigInteger j : primes) {
                 modCount++;
@@ -204,10 +206,7 @@ public class Factoring {
 		}
 		return num1+"("+num1coefficient+")"+"-"+num2+"("+num2coefficient+")="+remainder.get(remainder.size()-1)+"\nThe inverse of "+num2+" is " +(new BigInteger(num1).subtract(num2coefficient)); 
 	}
-	
-	
-	
-	
+
 	public ArrayList<BigInteger> tofactor() {
 		BigInteger temp = test;
 		ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
