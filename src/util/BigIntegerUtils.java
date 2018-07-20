@@ -59,4 +59,20 @@ public class BigIntegerUtils {
             System.out.println(i + ": " + sqrt(BigInteger.valueOf(i)).toString());
         }
     }
+
+    /**
+     * Returns (a^b)%c
+     * @param a  BigInteger input
+     * @param b BigInteger input
+     * @param c BigInteger input
+     * @return BigInteger (a^b)%c
+     */
+    public static BigInteger exponentialMod(BigInteger a, BigInteger b, BigInteger c) {
+        if (b.compareTo(BigInteger.ZERO) == 0) {return BigInteger.ONE;}
+        BigInteger tempMultiple = BigInteger.ONE;
+        for (BigInteger i = BigInteger.ZERO; i.compareTo(b) < 0; i = i.add(BigInteger.ONE)) {
+            tempMultiple = tempMultiple.multiply(a).mod(c);
+        }
+        return tempMultiple;
+    }
 }

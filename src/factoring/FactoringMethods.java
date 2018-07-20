@@ -1,7 +1,10 @@
 package factoring;
 
+import primes.PrimeGenerator;
 import util.BigIntegerUtils;
+import util.Results;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class FactoringMethods {
@@ -36,12 +39,26 @@ public class FactoringMethods {
     }
 
     /**
+     * Uses Difference of Squares method but as a Results with optional timing
+     * @param n Number to factor
+     * @param time Whether or not to measure time
+     * @return Results containing elapsed time and an array containing two factors of n
+     */
+    public static Results diffSquareFactoring(BigInteger n, boolean time) {
+        if (!time) return new Results(-1, -1, diffSquareFactoring(n), "N/A", "Factors");
+
+        long startTime = System.nanoTime();
+        BigInteger[] factors = diffSquareFactoring(n);
+        long endTime = System.nanoTime();
+        return new Results(endTime-startTime, -1, factors, "N/A", "Factors");
+    }
+
+    /**
      * Uses Pollard's Rho method to find 2 factors of a given n
      * @param n number to factor
      * @return Array containing the two found factors, or 1 and n if none found
      */
     public static BigInteger[] pollardRhoFactoring(BigInteger n) {
-        long startTime = System.nanoTime();
         BigInteger[] factors = new BigInteger[2];
         BigInteger b = BigIntegerUtils.randBigInteger(BigInteger.ONE, n.subtract(BigInteger.valueOf(2)));
         BigInteger s = BigIntegerUtils.randBigInteger(n);
@@ -56,19 +73,63 @@ public class FactoringMethods {
         }
         if (g.compareTo(n) < 0) {factors[0] = g; factors[1] = n.divide(g);}
         else {factors[1] = n; factors[0] = BigInteger.ONE;}
+        return factors;
+    }
+
+    /**
+     * Uses Pollard's Rho method but as a Results with optional timing
+     * @param n Number to factor
+     * @param time Whether or not to measure time
+     * @return Results containing elapsed time and an array containing two factors of n
+     */
+    public static Results pollardRhoFactoring(BigInteger n, boolean time) {
+        if (!time) return new Results(-1, -1, pollardRhoFactoring(n), "N/A", "Factors");
+
+        long startTime = System.nanoTime();
+        BigInteger[] factors = pollardRhoFactoring(n);
         long endTime = System.nanoTime();
-        System.out.println("Pollard runtime: " + (endTime - startTime) + " nanoseconds");
+        return new Results(endTime-startTime, -1, factors, "N/A", "Factors");
+    }
+
+    /**
+     *
+     * @param n number to factor
+     * @param B bound
+     * @return
+     */
+    public static BigInteger[] pollardRhoMinusOneFactoring(BigInteger n, long B) {
+        BigInteger[] factors = new BigInteger[2];
+        ArrayList<Long> primes = (ArrayList<Long>) PrimeGenerator.sieveOfEratosthenes(B).getResult(); //all primes from 2 to B
+        System.out.println("Primes generated:" + primes.toString().substring(0,400));
+        int k = primes.size(); //number of primes
+        BigInteger a = BigInteger.valueOf(2);
+        BigInteger g;
+        for (int i = 0; i < k; i++) {
+            int e = (int) (Math.log(B)/Math.log(primes.get(i)));
+            BigInteger f = BigInteger.valueOf(primes.get(i)).pow(e);
+            a = a.modPow(f, n);
+
+            if (i % 1000 == 999) {
+                g = a.subtract(BigInteger.ONE).gcd(n);
+                if (g.compareTo(BigInteger.ONE) != 0 && g.compareTo(n) != 0) {
+                    factors[0] = g; factors[1] = n.divide(g);
+                    return factors;
+                }
+            }
+        }
+        g = a.subtract(BigInteger.ONE).gcd(n);
+        if (g.compareTo(BigInteger.ONE) != 0 && g.compareTo(n) != 0) {
+            factors[0] = g; factors[1] = n.divide(g);
+        } else {
+            factors[0] = BigInteger.ONE; factors[1] = n;
+        }
         return factors;
     }
 
     public static void main(String[] args) {
         //System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("52866631"))));
         //System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("1743035045201245231"))));
-        BigInteger[] pollardRhoFactoring = pollardRhoFactoring(new BigInteger("1743035045201245231"));
+        BigInteger[] pollardRhoFactoring = pollardRhoMinusOneFactoring(new BigInteger("1743035045201245231"), 100000000);
         System.out.println(Arrays.toString(pollardRhoFactoring));
-        while (pollardRhoFactoring[0].compareTo(BigInteger.ONE) == 0) {
-            pollardRhoFactoring = pollardRhoFactoring(new BigInteger("1743035045201245231"));
-            System.out.println(Arrays.toString(pollardRhoFactoring));
-        }
     }
 }
