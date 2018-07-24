@@ -75,7 +75,7 @@ public class PrimeGenerator {
     }
 
     /**
-     * Generate primes from 2 to given limit using the Sieve of Eratosthenes
+     * Generate primes from 2 to given limit using the Sieve of Eratosthenes, skipping even numbers
      * If limit > 2^31, uses another method with a limit up to 2^62
      * @param limit limit for generating primes
      * @return generated primes as an ArrayList of longs
@@ -91,75 +91,31 @@ public class PrimeGenerator {
             long operations = 0;
             int intLimit = (int) limit;
             // array representing whether its index is prime or not
-            boolean[] numberPrimality = new boolean[intLimit];
-            for (int i = 2; i < numberPrimality.length; i++) {
-                operations++;
-                // assume every number 2 and up is prime
-                numberPrimality[i] = true;
-            }
-
+            boolean[] isComposite = new boolean[(intLimit-3)/2 + 1];
+            int n = 3;
             // for every integer from 2 to sqrt(max), if it's prime, cross out its multiples
-            for (int i = 2; i < (int) Math.pow(numberPrimality.length, .5) + 1; i++) {
-                if (numberPrimality[i]) {
-                    for (int j = (int) Math.pow(i,2); j < numberPrimality.length; j += i) {
+            for (int i = 0; n < (int) Math.pow(limit, .5) + 1; i++) {
+                n = 2*i+3;
+                if (!isComposite[i]) {
+                    for (int j = 2*i*i + 6*i + 3; j < isComposite.length; j += n) {
                         operations++;
-                        numberPrimality[j] = false;
+                        isComposite[j] = true;
                     }
                 }
             }
 
             // compile all the primes into a list
-            ArrayList<Long> primes = new ArrayList<Long>();
-            for (int i = 2; i < numberPrimality.length; i++) {
+            ArrayList<Long> primes = new ArrayList<Long>(); primes.add((long)2);
+            for (int i = 0; i < isComposite.length; i++) {
                 operations++;
-                if (numberPrimality[i]) {
-                    primes.add((long)i);
+                if (!isComposite[i]) {
+                    primes.add((long) (2*i+3));
                 }
             }
             long endTime = System.nanoTime();
             return new Results(endTime - startTime, operations, primes, "array accesses", "Primes");
-        } else {
-            return largeSieveOfEratosthenes(BigInteger.valueOf(limit));
         }
-    }
-
-    public static Results largeSieveOfEratosthenes(BigInteger limit) {
-        BigInteger intMaxVal = BigInteger.valueOf(Integer.MAX_VALUE);
-        //if (limit.compareTo(intMaxVal) < 0) {
-        if (false) {
-            return sieveOfEratosthenes(limit.longValue());
-        }
-        long startTime = System.nanoTime();
-        int nrows = limit.divide(intMaxVal).intValue() + 1;
-        BigInteger currN = null;
-        BitSet[] nPrimality = new BitSet[nrows]; //false = prime, true = composite. Assume all are prime for now
-        for (int i = 0; i < nrows; i++) {
-            nPrimality[i] = new BitSet(Integer.MAX_VALUE);
-            for (int j = 0; j < Integer.MAX_VALUE; j++) {
-                if (j % 1000000000 == 0) System.out.println(j);
-                if (i == 0 && j < 2) j = 2;
-                if (!nPrimality[i].get(j)) {
-                    currN = BigInteger.valueOf(i).multiply(intMaxVal).add(BigInteger.valueOf(j));
-                    System.out.println(currN.toString());
-                    for (BigInteger k = currN.pow(2); k.compareTo(limit) < 0; k = k.add(currN)) {
-                        if (k.mod(BigInteger.valueOf(100000000)).compareTo(BigInteger.ZERO) == 0) System.out.println(k);
-                        nPrimality[k.divide(intMaxVal).intValue()].set(k.mod(intMaxVal).intValue(), true);
-                    }
-                }
-            }
-        }
-
-        ArrayList<BigInteger> primes = new ArrayList<BigInteger>();
-        for (int i = 0; i < nrows; i++) {
-            for (int j = nPrimality[i].nextClearBit(0); j >= 0; j = nPrimality[i].nextClearBit(j+1)) {
-                primes.add(BigInteger.valueOf(i).multiply(intMaxVal).add(BigInteger.valueOf(j)));
-            }
-            nPrimality[i] = null;
-        }
-
-        long endTime = System.nanoTime();
-
-        return new Results(endTime - startTime, 0, primes, "N/A", "Primes");
+        return null;
     }
 
     /**
@@ -273,18 +229,74 @@ public class PrimeGenerator {
         return wheelGenerator(numPrimes, n, wheel, iterations, 1000);
     }
 
+    /**
+     * Given a list of the first n primes, generates a list of all the numbers from 1 to the product of those primes
+     * which are not divisible by any of the primes.
+     * @param primes list of first n primes
+     */
+    public static ArrayList<BigInteger> primeProductCoprimeList(ArrayList<Integer> primes) {
+        BigInteger primeProduct = BigInteger.ONE;
+        for (Integer p : primes) {
+            primeProduct = primeProduct.multiply(BigInteger.valueOf(p));
+        }
+
+        ArrayList<BigInteger> modList = new ArrayList<BigInteger>();
+        modList.add(BigInteger.ONE);
+
+        boolean indivisible;
+
+        for (BigInteger i = BigInteger.valueOf(primes.get(primes.size()-1)); i.compareTo(primeProduct) < 0; i = i.add(BigInteger.valueOf(2))) {
+            indivisible = true;
+            //if (i.mod(BigInteger.valueOf(1000000)).compareTo(BigInteger.ONE) == 0) { System.out.println(i); }
+            for (Integer p : primes) {
+                try {
+                    if (i.mod(BigInteger.valueOf(p)).compareTo(BigInteger.ZERO) == 0) {
+                        indivisible = false;
+                        break;
+                    }
+                } catch (Exception e) {
+                    System.out.println(i.toString() + ", " + p);
+                }
+            }
+            if (indivisible) { modList.add(i); }
+        }
+        return modList;
+    }
+
+    public static ArrayList<BigInteger> primeProductCoprimeList(ArrayList<Integer> primes, ArrayList<BigInteger> previousPrimeProductCoprimes) {
+        BigInteger primorial = BigInteger.ONE;
+        Integer largestPrime = primes.get(primes.size()-1);
+        for (Integer p : primes) {
+            primorial = primorial.multiply(BigInteger.valueOf(p));
+        }
+        BigInteger previousPrimorial = primorial.divide(BigInteger.valueOf(largestPrime));
+        ArrayList<BigInteger> coprimeList = new ArrayList<>();
+        for (BigInteger i = BigInteger.ZERO; i.compareTo(primorial) < 0; i = i.add(previousPrimorial)) {
+            System.out.println(i);
+            BigInteger k;
+            for (BigInteger previousCoprime : previousPrimeProductCoprimes) {
+                k = i.add(previousCoprime);
+                if (k.mod(BigInteger.valueOf(largestPrime)).compareTo(BigInteger.ZERO) != 0) {
+                    coprimeList.add(k);
+                }
+            }
+        }
+
+        return coprimeList;
+    }
+
     public static void main(String[] args) {
         /*System.gc();
         Results naiveResult = naivePrimeGenerator(BigInteger.valueOf(12000));
-        System.out.println(naiveResult.toString(400));
+        System.out.println(naiveResult.toString(400));*/
 
         System.gc();
-        Results sieveResult = sieveOfEratosthenes((long)(12000));
+        Results sieveResult = sieveOfEratosthenes((long)(12007));
         System.out.println("Sieve of Eratosthenes:");
         System.out.print(sieveResult.toString(400));
         System.out.println("Largest Prime: " + ((ArrayList<Long>)sieveResult.getResult()).get(((ArrayList<Long>)sieveResult.getResult()).size()-1));
 
-        System.gc();
+        /*System.gc();
         Results sundaramResult = sieveOfSundaram(12000);
         System.out.println("\nSieve of Sundaram:");
         System.out.print(sundaramResult.toString(400));
@@ -297,7 +309,8 @@ public class PrimeGenerator {
         //Results largeSieve = largeSieveOfEratosthenes(BigInteger.valueOf(Integer.MAX_VALUE/8));
         //System.out.println(largeSieve.toString(400));
 
-        System.out.println(wheelGenerator(1, BigInteger.valueOf(1000000000), 2*3*5*7*11*13).toString(400));
-        System.out.println(wheelGenerator(1, BigInteger.valueOf(1743035028), 2*3*5*7*11*13).toString(400));
+        //System.out.println(wheelGenerator(1, BigInteger.valueOf(1000000000), 2*3*5*7*11*13).toString(400));
+        //System.out.println(wheelGenerator(1, BigInteger.valueOf(1743035028), 2*3*5*7*11*13).toString(400));
+        //System.out.println(BigInteger.valueOf(180000000).mod(BigInteger.valueOf(23)));
     }
 }

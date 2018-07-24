@@ -75,4 +75,13 @@ public class BigIntegerUtils {
         }
         return tempMultiple;
     }
+
+    /**
+     * Returns the length of a BigInteger expressed in base 10
+     * @param a BigInteger input
+     * @return length of a
+     */
+    public static BigInteger bigIntLength(BigInteger a) {
+        return BigInteger.valueOf(a.toString().length());
+    }
 }

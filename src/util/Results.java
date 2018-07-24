@@ -1,5 +1,10 @@
 package util;
 
+import java.math.BigInteger;
+import java.util.Arrays;
+
+import static jdk.nashorn.internal.objects.NativeString.substring;
+
 /**
  * Object used to store result, duration, and operation for returning.
  */
@@ -46,5 +51,11 @@ public class Results {
     public String toString(int carLimit) {
         return String.format("%d nanoseconds, %.3f seconds%n%d %s%n", duration,
                 duration/1000000000.0, operations, operationType) + resultType + ": " + result.toString().substring(0,Math.min(result.toString().length(), carLimit)) + "\n";
+    }
+
+    public String arrayToString() {return this.arrayToString(500);}
+    public String arrayToString(int carLimit) {
+        return String.format("%d nanoseconds, %.3f seconds%n%d %s%n", duration,
+                duration/1000000000.0, operations, operationType) + resultType + ": " + Arrays.toString((BigInteger[]) result).substring(0,Math.min(Arrays.toString((BigInteger[]) result).length(), carLimit)) + "\n";
     }
 }
