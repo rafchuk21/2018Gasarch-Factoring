@@ -293,7 +293,7 @@ public class PrimeGenerator {
         System.gc();
         Results sieveResult = sieveOfEratosthenes((long)(12007));
         System.out.println("Sieve of Eratosthenes:");
-        System.out.print(sieveResult.toString(400));
+        System.out.print(sieveResult);
         System.out.println("Largest Prime: " + ((ArrayList<Long>)sieveResult.getResult()).get(((ArrayList<Long>)sieveResult.getResult()).size()-1));
 
         /*System.gc();

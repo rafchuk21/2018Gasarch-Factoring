@@ -1,6 +1,7 @@
 package util;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static jdk.nashorn.internal.objects.NativeString.substring;
@@ -49,8 +50,14 @@ public class Results {
      * @return String form of the Result
      */
     public String toString(int carLimit) {
-        return String.format("%d nanoseconds, %.3f seconds%n%d %s%n", duration,
-                duration/1000000000.0, operations, operationType) + resultType + ": " + result.toString().substring(0,Math.min(result.toString().length(), carLimit)) + "\n";
+        if (this.result.getClass() == new BigInteger[2].getClass()) {
+            return String.format("%d nanoseconds, %.3f seconds%n%d %s%n", duration,
+                    duration / 1000000000.0, operations, operationType) + resultType + ": " + Arrays.toString((BigInteger[]) result).substring(0, Math.min(Arrays.toString((BigInteger[]) result).length(), carLimit)) + "\n";
+        } else {
+            return String.format("%d nanoseconds, %.3f seconds%n%d %s%n", duration,
+                    duration / 1000000000.0, operations, operationType) + resultType + ": " + result.toString().substring(0, Math.min(result.toString().length(), carLimit)) + "\n";
+        }
+
     }
 
     public String arrayToString() {return this.arrayToString(500);}

@@ -2,6 +2,7 @@ package factoring;
 
 import primes.PrimeGenerator;
 import util.BigIntegerUtils;
+import util.LinalgUtil;
 import util.Results;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -93,22 +94,14 @@ public class FactoringMethods {
         return new Results(endTime-startTime, -1, factors, "N/A", "Factors");
     }
 
-    /**
-     *
-     * @param n number to factor
-     * @param B bound
-     * @return
-     */
-    public static Results pollardRhoMinusOneFactoring(BigInteger n, long B) {
-        long startTime = System.nanoTime();
+    public static BigInteger[] pollardRhoMinusOneFactoring(BigInteger n, long B) {
         BigInteger[] factors = new BigInteger[2];
         ArrayList<Long> primes = (ArrayList<Long>) PrimeGenerator.sieveOfEratosthenes(B).getResult(); //all primes from 2 to B
-        System.out.println("Primes Generated " + primes.toString());
-        int k = primes.size(); //number of primes
+        //System.out.println("Primes Generated " + primes.toString());
         BigInteger a = BigInteger.valueOf(2);
         BigInteger g;
         BigInteger t;
-        for (int i = 0; i < k; i++) {
+        for (int i = 0; i < primes.size(); i++) {
             int e = (int) (Math.log(B)/Math.log(primes.get(i)));
             BigInteger f = BigInteger.valueOf(primes.get(i)).pow(e);
             a = a.modPow(f, n);
@@ -116,20 +109,81 @@ public class FactoringMethods {
             if (t.compareTo(ONE) != 0 && t.compareTo(n) != 0 ) {
                 System.out.println(primes.get(i));
                 factors[0] = t; factors[1] = n.divide(t);
-                long endTime = System.nanoTime();
-                return new Results(endTime - startTime, -1, factors, "N/A", "Factors");
+                return factors;
             }
         }
+        factors[0] = ONE; factors[1] = n; return factors;
+    }
+
+    /**
+     *
+     * @param n number to factor
+     * @param B bound
+     * @return
+     */
+    public static Results pollardRhoMinusOneFactoring(BigInteger n, long B, boolean time) {
+        if (!time) {return new Results(-1, -1, pollardRhoMinusOneFactoring(n, B), "N/A", "Factors");}
+        long startTime = System.nanoTime();
+        BigInteger[] results = pollardRhoMinusOneFactoring(n, B);
         long endTime = System.nanoTime();
-        factors[0] = ONE; factors[1] = n; return new Results(endTime - startTime, -1, factors, "N/A", "Factors");
+        return new Results(endTime - startTime, -1, results, "N/A", "Factors");
+    }
+
+    public static BigInteger[] quadraticSieve(BigInteger n, long B) {
+        ArrayList<Long> primes = (ArrayList<Long>) PrimeGenerator.sieveOfEratosthenes(B).getResult();
+        System.out.println(primes);
+        int numPrimes = primes.size();
+        int[][] matrix = new int[numPrimes][numPrimes];
+        ArrayList<BigInteger> storedNumbers = new ArrayList<>();
+        BigInteger m = BigIntegerUtils.sqrt(n).add(BigInteger.ONE);
+        BigInteger k; int v;
+        int[] currentRow;
+        boolean included;
+        while (storedNumbers.size() < numPrimes) {
+            currentRow = new int[numPrimes];
+            k = m.modPow(BigInteger.valueOf(2), n);
+            for (int i = 0; i < numPrimes; i++) {
+                while (k.mod(BigInteger.valueOf(primes.get(i))).compareTo(BigInteger.ZERO) == 0) {
+                    currentRow[i] = (currentRow[i] + 1) % 2;
+                    k = k.divide(BigInteger.valueOf(primes.get(i)));
+                }
+            }
+
+            if (k.compareTo(BigInteger.ONE) == 0) {
+                matrix[storedNumbers.size()] = currentRow;
+                storedNumbers.add(m);
+            }
+
+            m = m.add(BigInteger.ONE);
+        }
+
+        ArrayList<Integer> removals = new ArrayList<>();
+        matrix = LinalgUtil.remove0Columns(matrix, removals);
+
+        for (int i = 0; i < removals.size(); i++) {
+            int indexToRemove = removals.get(i) - i; //accounts for already removed elements
+            System.out.println(primes.remove(indexToRemove));
+        }
+
+        ArrayList<int[]> replacements = new ArrayList<>();
+        matrix = LinalgUtil.rowEchelonForm(matrix, replacements);
+        System.out.println(Arrays.deepToString(replacements.toArray()));
+
+        for (int i = 0; i < numPrimes; i++) {
+            System.out.println(storedNumbers.get(i) + Arrays.toString(matrix[i]));
+        }
+
+        return null;
     }
 
     public static void main(String[] args) {
         //System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("52866631"))));
         //System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("1743035045201245231"))));
-        Results pollardRhoFactoring = pollardRhoFactoring(new BigInteger("16689780334319"), true);
-        Results pollardRhoM1Factoring = pollardRhoMinusOneFactoring(new BigInteger("16689780334319"), 6000);
-        System.out.println(pollardRhoFactoring.arrayToString());
-        System.out.println(pollardRhoM1Factoring.arrayToString());
+        /*Results pollardRhoFactoring = pollardRhoFactoring(new BigInteger("16689780334319"), true);
+        Results pollardRhoM1Factoring = pollardRhoMinusOneFactoring(new BigInteger("16689780334319"), 6000, true);
+        System.out.println(pollardRhoFactoring);
+        System.out.println(pollardRhoM1Factoring);*/
+
+        quadraticSieve(new BigInteger("13290059"), 100);
     }
 }
