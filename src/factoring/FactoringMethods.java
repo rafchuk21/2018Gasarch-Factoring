@@ -2,7 +2,6 @@ package factoring;
 
 import primes.PrimeGenerator;
 import util.BigIntegerUtils;
-import util.LinalgUtil;
 import util.Results;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -157,33 +156,13 @@ public class FactoringMethods {
             m = m.add(BigInteger.ONE);
         }
 
-        ArrayList<Integer> removals = new ArrayList<>();
-        matrix = LinalgUtil.remove0Columns(matrix, removals);
-
-        for (int i = 0; i < removals.size(); i++) {
-            int indexToRemove = removals.get(i) - i; //accounts for already removed elements
-            System.out.println(primes.remove(indexToRemove));
-        }
-
-        ArrayList<int[]> replacements = new ArrayList<>();
-        matrix = LinalgUtil.rowEchelonForm(matrix, replacements);
-        System.out.println(Arrays.deepToString(replacements.toArray()));
-
-        for (int i = 0; i < numPrimes; i++) {
-            System.out.println(storedNumbers.get(i) + Arrays.toString(matrix[i]));
-        }
-
         return null;
     }
 
     public static void main(String[] args) {
-        //System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("52866631"))));
-        //System.out.println(Arrays.toString(diffSquareFactoring(new BigInteger("1743035045201245231"))));
-        /*Results pollardRhoFactoring = pollardRhoFactoring(new BigInteger("16689780334319"), true);
-        Results pollardRhoM1Factoring = pollardRhoMinusOneFactoring(new BigInteger("16689780334319"), 6000, true);
-        System.out.println(pollardRhoFactoring);
-        System.out.println(pollardRhoM1Factoring);*/
-
-        quadraticSieve(new BigInteger("13290059"), 100);
+        QuadraticSieve qs = new QuadraticSieve();
+        qs.factor(new BigInteger("354256138673"), 100);
+        System.out.println(qs.getFactorBase());
+        System.out.println(qs.initialMatrixToString());
     }
 }
