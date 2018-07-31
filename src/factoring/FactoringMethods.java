@@ -46,13 +46,13 @@ public class FactoringMethods {
      * @param time Whether or not to measure time
      * @return Results containing elapsed time and an array containing two factors of n
      */
-    public static Results diffSquareFactoring(BigInteger n, boolean time) {
-        if (!time) return new Results(-1, -1, diffSquareFactoring(n), "N/A", "Factors");
+    public static Results<BigInteger[]> diffSquareFactoring(BigInteger n, boolean time) {
+        if (!time) return new Results<>(-1, -1, diffSquareFactoring(n), "N/A", "Factors");
 
         long startTime = System.nanoTime();
         BigInteger[] factors = diffSquareFactoring(n);
         long endTime = System.nanoTime();
-        return new Results(endTime-startTime, -1, factors, "N/A", "Factors");
+        return new Results<>(endTime-startTime, -1, factors, "N/A", "Factors");
     }
 
     /**
@@ -84,18 +84,18 @@ public class FactoringMethods {
      * @param time Whether or not to measure time
      * @return Results containing elapsed time and an array containing two factors of n
      */
-    public static Results pollardRhoFactoring(BigInteger n, boolean time) {
-        if (!time) return new Results(-1, -1, pollardRhoFactoring(n), "N/A", "Factors");
+    public static Results<BigInteger[]> pollardRhoFactoring(BigInteger n, boolean time) {
+        if (!time) return new Results<>(-1, -1, pollardRhoFactoring(n), "N/A", "Factors");
 
         long startTime = System.nanoTime();
         BigInteger[] factors = pollardRhoFactoring(n);
         long endTime = System.nanoTime();
-        return new Results(endTime-startTime, -1, factors, "N/A", "Factors");
+        return new Results<>(endTime-startTime, -1, factors, "N/A", "Factors");
     }
 
     public static BigInteger[] pollardRhoMinusOneFactoring(BigInteger n, long B) {
         BigInteger[] factors = new BigInteger[2];
-        ArrayList<Long> primes = (ArrayList<Long>) PrimeGenerator.sieveOfEratosthenes(B).getResult(); //all primes from 2 to B
+        ArrayList<Long> primes = PrimeGenerator.sieveOfEratosthenes(B).getResult(); //all primes from 2 to B
         //System.out.println("Primes Generated " + primes.toString());
         BigInteger a = BigInteger.valueOf(2);
         BigInteger g;
@@ -120,16 +120,16 @@ public class FactoringMethods {
      * @param B bound
      * @return
      */
-    public static Results pollardRhoMinusOneFactoring(BigInteger n, long B, boolean time) {
-        if (!time) {return new Results(-1, -1, pollardRhoMinusOneFactoring(n, B), "N/A", "Factors");}
+    public static Results<BigInteger[]> pollardRhoMinusOneFactoring(BigInteger n, long B, boolean time) {
+        if (!time) {return new Results<>(-1, -1, pollardRhoMinusOneFactoring(n, B), "N/A", "Factors");}
         long startTime = System.nanoTime();
         BigInteger[] results = pollardRhoMinusOneFactoring(n, B);
         long endTime = System.nanoTime();
-        return new Results(endTime - startTime, -1, results, "N/A", "Factors");
+        return new Results<>(endTime - startTime, -1, results, "N/A", "Factors");
     }
 
     public static BigInteger[] quadraticSieve(BigInteger n, long B) {
-        ArrayList<Long> primes = (ArrayList<Long>) PrimeGenerator.sieveOfEratosthenes(B).getResult();
+        ArrayList<Long> primes = PrimeGenerator.sieveOfEratosthenes(B).getResult();
         System.out.println(primes);
         int numPrimes = primes.size();
         int[][] matrix = new int[numPrimes][numPrimes];

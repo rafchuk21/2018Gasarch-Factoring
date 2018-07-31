@@ -16,7 +16,7 @@ public class PrimeGenerator {
      * @return generated primes as an ArrayList of longs
      * @author rafi
      */
-    public static Results naivePrimeGenerator(BigInteger limit) {
+    public static Results<ArrayList<BigInteger>> naivePrimeGenerator(BigInteger limit) {
         if (limit.compareTo(BigInteger.valueOf(2)) < 0) {
             throw new IllegalArgumentException();
         }
@@ -42,10 +42,10 @@ public class PrimeGenerator {
         }
 
         long endTime = System.nanoTime();
-        return new Results(endTime - startTime, modCount, primes, "modulos", "Primes");
+        return new Results<>(endTime - startTime, modCount, primes, "modulos", "Primes");
     }
 
-    public static Results naivePrimeGenerator(long limit) {
+    public static Results<ArrayList<Long>> naivePrimeGenerator(long limit) {
         if (limit < 2) {
             throw new IllegalArgumentException();
         }
@@ -71,7 +71,7 @@ public class PrimeGenerator {
         }
 
         long endTime = System.nanoTime();
-        return new Results(endTime - startTime, modCount, primes, "modulos", "Primes");
+        return new Results<>(endTime - startTime, modCount, primes, "modulos", "Primes");
     }
 
     /**
@@ -81,7 +81,7 @@ public class PrimeGenerator {
      * @return generated primes as an ArrayList of longs
      * @author rafi
      */
-    public static Results sieveOfEratosthenes(long limit) {
+    public static Results<ArrayList<Long>> sieveOfEratosthenes(long limit) {
         if (limit < 2) {
             throw new IllegalArgumentException();
         }
@@ -113,7 +113,7 @@ public class PrimeGenerator {
                 }
             }
             long endTime = System.nanoTime();
-            return new Results(endTime - startTime, operations, primes, "array accesses", "Primes");
+            return new Results<ArrayList<Long>>(endTime - startTime, operations, primes, "array accesses", "Primes");
         }
         return null;
     }
@@ -123,7 +123,7 @@ public class PrimeGenerator {
      * @param limit
      * @return Results of sieve
      */
-    public static Results sieveOfSundaram(int limit) {
+    public static Results<ArrayList<Integer>> sieveOfSundaram(int limit) {
         if (limit < 2) {
             throw new IllegalArgumentException();
         }
@@ -144,7 +144,7 @@ public class PrimeGenerator {
             arrayAccesses++;
         }
         long endTime = System.nanoTime();
-        return new Results(endTime - startTime, arrayAccesses, primes, "array accesses", "Primes");
+        return new Results<>(endTime - startTime, arrayAccesses, primes, "array accesses", "Primes");
     }
 
     /**
@@ -152,16 +152,16 @@ public class PrimeGenerator {
      * @param n
      * @return
      */
-    public static Results wheelGenerator(BigInteger n, int wheel, int iterations, int smallerPrimeLimit) {
+    public static Results<ArrayList<BigInteger>> wheelGenerator(BigInteger n, int wheel, int iterations, int smallerPrimeLimit) {
         System.out.println(n.toString());
         long startTime = System.nanoTime();
         BigInteger wheelBigInt = BigInteger.valueOf(wheel);
         ArrayList<BigInteger> primes = new ArrayList<BigInteger>();
         System.out.println("Coprimes generating");
-        Results coprimeResults = CoprimeGenerator.naiveCoprimeGenerator(BigInteger.valueOf(wheel));
-        ArrayList<BigInteger> coprimes = (ArrayList<BigInteger>) coprimeResults.getResult();
+        Results<ArrayList<BigInteger>> coprimeResults = CoprimeGenerator.naiveCoprimeGenerator(BigInteger.valueOf(wheel));
+        ArrayList<BigInteger> coprimes = coprimeResults.getResult();
         System.out.println("Coprimes generated");
-        ArrayList<Long> smallerPrimes = (ArrayList<Long>) sieveOfEratosthenes((long) smallerPrimeLimit).getResult();
+        ArrayList<Long> smallerPrimes = sieveOfEratosthenes((long) smallerPrimeLimit).getResult();
         for (BigInteger i = n.divide(wheelBigInt); i.multiply(wheelBigInt).compareTo(n.add(n)) < 0; i = i.add(BigInteger.ONE)) {
             System.out.println(i.multiply(wheelBigInt).toString());
             for (BigInteger cp : coprimes) {
@@ -174,7 +174,7 @@ public class PrimeGenerator {
             }
         }
         long endTime = System.nanoTime();
-        return new Results(endTime - startTime, 0, primes, "N/A", "Primes");
+        return new Results<>(endTime - startTime, 0, primes, "N/A", "Primes");
     }
 
     /**
@@ -182,12 +182,12 @@ public class PrimeGenerator {
      * @param n
      * @return
      */
-    public static Results wheelGenerator(int numPrimes, BigInteger n, int wheel, int iterations, int smallerPrimeLimit) {
+    public static Results<ArrayList<BigInteger>> wheelGenerator(int numPrimes, BigInteger n, int wheel, int iterations, int smallerPrimeLimit) {
         long startTime = System.nanoTime();
         BigInteger wheelBigInt = BigInteger.valueOf(wheel);
         ArrayList<BigInteger> primes = new ArrayList<BigInteger>();
-        Results coprimeResults = CoprimeGenerator.naiveCoprimeGenerator(BigInteger.valueOf(wheel));
-        ArrayList<BigInteger> coprimes = (ArrayList<BigInteger>) coprimeResults.getResult();
+        Results<ArrayList<BigInteger>> coprimeResults = CoprimeGenerator.naiveCoprimeGenerator(BigInteger.valueOf(wheel));
+        ArrayList<BigInteger> coprimes = coprimeResults.getResult();
         ArrayList<Long> smallerPrimes = (ArrayList<Long>) sieveOfEratosthenes((long) smallerPrimeLimit).getResult();
         for (BigInteger i = n.divide(wheelBigInt); i.multiply(wheelBigInt).compareTo(n.add(n)) < 0; i = i.add(BigInteger.ONE)) {
             for (BigInteger cp : coprimes) {
@@ -201,31 +201,31 @@ public class PrimeGenerator {
             if (primes.size() >= numPrimes) break;
         }
         long endTime = System.nanoTime();
-        return new Results(endTime - startTime, 0, primes, "N/A", "Primes");
+        return new Results<>(endTime - startTime, 0, primes, "N/A", "Primes");
     }
 
 
-    public static Results wheelGenerator(BigInteger n) {
+    public static Results<ArrayList<BigInteger>> wheelGenerator(BigInteger n) {
         return wheelGenerator(n, 30);
     }
 
-    public static Results wheelGenerator(BigInteger n, int wheel) {
+    public static Results<ArrayList<BigInteger>> wheelGenerator(BigInteger n, int wheel) {
         return wheelGenerator(n, wheel, 16);
     }
 
-    public static Results wheelGenerator(BigInteger n, int wheel, int iterations) {
+    public static Results<ArrayList<BigInteger>> wheelGenerator(BigInteger n, int wheel, int iterations) {
         return wheelGenerator(n, wheel, iterations, 1000);
     }
 
-    public static Results wheelGenerator(int numPrimes, BigInteger n) {
+    public static Results<ArrayList<BigInteger>> wheelGenerator(int numPrimes, BigInteger n) {
         return wheelGenerator(numPrimes, n, 30);
     }
 
-    public static Results wheelGenerator(int numPrimes, BigInteger n, int wheel) {
+    public static Results<ArrayList<BigInteger>> wheelGenerator(int numPrimes, BigInteger n, int wheel) {
         return wheelGenerator(numPrimes, n, wheel, 16);
     }
 
-    public static Results wheelGenerator(int numPrimes, BigInteger n, int wheel, int iterations) {
+    public static Results<ArrayList<BigInteger>> wheelGenerator(int numPrimes, BigInteger n, int wheel, int iterations) {
         return wheelGenerator(numPrimes, n, wheel, iterations, 1000);
     }
 
@@ -291,10 +291,10 @@ public class PrimeGenerator {
         System.out.println(naiveResult.toString(400));*/
 
         System.gc();
-        Results sieveResult = sieveOfEratosthenes((long)(12007));
+        Results<ArrayList<Long>> sieveResult = sieveOfEratosthenes((long)(12007));
         System.out.println("Sieve of Eratosthenes:");
         System.out.print(sieveResult.toString(5000));
-        System.out.println("Largest Prime: " + ((ArrayList<Long>)sieveResult.getResult()).get(((ArrayList<Long>)sieveResult.getResult()).size()-1));
+        System.out.println("Largest Prime: " + (sieveResult.getResult()).get((sieveResult.getResult()).size()-1));
 
         /*System.gc();
         Results sundaramResult = sieveOfSundaram(12000);

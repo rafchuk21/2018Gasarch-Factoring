@@ -10,7 +10,7 @@ public class CoprimeGenerator {
      * @param n
      * @return
      */
-    public static Results naiveCoprimeGenerator(BigInteger n) {
+    public static Results<ArrayList<BigInteger>> naiveCoprimeGenerator(BigInteger n) {
         long startTime = System.nanoTime();
         ArrayList<BigInteger> coprimes = new ArrayList<BigInteger>();
         for (BigInteger i = BigInteger.ONE; i.compareTo(n) < 0; i = i.add(BigInteger.ONE)) {
@@ -20,6 +20,6 @@ public class CoprimeGenerator {
         }
         long endTime = System.nanoTime();
 
-        return new Results(endTime - startTime, 0, coprimes, "N/A", "Coprimes of " + n.intValue());
+        return new Results<>(endTime - startTime, 0, coprimes, "N/A", "Coprimes of " + n.intValue());
     }
 }

@@ -4,19 +4,17 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static jdk.nashorn.internal.objects.NativeString.substring;
-
 /**
  * Object used to store result, duration, and operation for returning.
  */
-public class Results {
+public class Results<T> {
     private long duration;
     private long operations;
-    private Object result;
+    private T result;
     private String operationType;
     private String resultType;
 
-    public Results(long dur, long ops, Object r, String opType, String resType) {
+    public Results(long dur, long ops, T r, String opType, String resType) {
         duration = dur;
         operations = ops;
         result = r;
@@ -32,7 +30,7 @@ public class Results {
         return operations;
     }
 
-    public Object getResult() {
+    public T getResult() {
         return result;
     }
 

@@ -267,7 +267,7 @@ public class Factoring {
 	    if ((x.multiply(x)).compareTo(test)<0) {
 	        x.add(BigInteger.ONE);
         }
-        ArrayList<Long> factorbase = (ArrayList<Long>) PrimeGenerator.sieveOfEratosthenes(B).getResult();
+        ArrayList<Long> factorbase = PrimeGenerator.sieveOfEratosthenes(B).getResult();
 	    ArrayList<BigInteger> tosieve = new ArrayList<BigInteger>();
 	    for (int i=0; i<A; i++) {
 	        BigInteger temp = x.add(BigInteger.valueOf(i));

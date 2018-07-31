@@ -1,12 +1,12 @@
 package factoring;
 
-import com.sun.deploy.util.ArrayUtil;
 import primes.PrimeGenerator;
 import util.BigIntegerUtils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.InputMismatchException;
 
 public class QuadraticSieve {
     private BigInteger n;
@@ -14,9 +14,15 @@ public class QuadraticSieve {
     private boolean time;
     private ArrayList<Long> primes;
     private ArrayList<Long> factorBase;
+    private ArrayList<ArrayList<BigInteger>> factorBaseRoots;
     private int numPrimes;
     private int[][] matrix;
     private ArrayList<Row> initialRows;
+
+    private final BigInteger ZERO = BigInteger.ZERO;
+    private final BigInteger ONE = BigInteger.ONE;
+    private final BigInteger TWO = BigInteger.valueOf(2);
+    private final BigInteger TEN = BigInteger.TEN;
 
     public QuadraticSieve(boolean time) {
         this.time = time;
@@ -28,9 +34,11 @@ public class QuadraticSieve {
     public ArrayList<Integer> factor(BigInteger n, int B) {
         this.n = n;
         this.B = B;
-        primes = (ArrayList<Long>) PrimeGenerator.sieveOfEratosthenes(10000).getResult();
+        primes = PrimeGenerator.sieveOfEratosthenes(10000).getResult();
         factorBase = buildFactorBase(B);
         System.out.println(factorBase);
+        buildFactorBaseRoots();
+        System.out.println(Arrays.deepToString(factorBaseRoots.toArray()));
         numPrimes = factorBase.size();
         matrix = new int[numPrimes+1][numPrimes];
         initialRows = new ArrayList<>();
@@ -51,13 +59,13 @@ public class QuadraticSieve {
      * @return whether number is product of numbers in factor base
      */
     private boolean checkNum(BigInteger m) {
-        for (long p : factorBase) {
-            while (m.mod(BigInteger.valueOf(p)).compareTo(BigInteger.ZERO) == 0) {
-                m = m.divide(BigInteger.valueOf(p));
+        for (long p : factorBase) {                                                 //for every prime in the factor base
+            while (m.mod(BigInteger.valueOf(p)).compareTo(BigInteger.ZERO) == 0) { //while you can divide m by that prime
+                m = m.divide(BigInteger.valueOf(p));                                //divide m by that prime
             }
         }
 
-        return m.compareTo(BigInteger.ONE) == 0;
+        return m.compareTo(BigInteger.ONE) == 0;     //if the remainder is 1, m was a product of primes in factor base
     }
 
     /**
@@ -65,9 +73,13 @@ public class QuadraticSieve {
      * @param p prime to check
      * @return Legendre Symbol (n/p)
      */
-    private int legendreSymbol(long p) {
-        return n.modPow(BigInteger.valueOf((p-1)/2), BigInteger.valueOf(p)).intValue();
+    private int legendreSymbol(BigInteger k, BigInteger p) {
+        int ls = k.modPow(p.subtract(ONE).divide(TWO), p).intValue(); //System.out.println(p + ", " + ls);
+        return ls;
     }
+
+    private int legendreSymbol(long k, long p) { return legendreSymbol(BigInteger.valueOf(k), BigInteger.valueOf(p)); }
+    private int legendreSymbol(long p) { return legendreSymbol(n, BigInteger.valueOf(p)); }
 
     /**
      * Generates a list of all the primes less than maxFactor, where there exists an x s.t. N = x^2 mod p.
@@ -78,11 +90,21 @@ public class QuadraticSieve {
         ArrayList<Long> ret = new ArrayList<>();
         for (long p : primes) {
             if (p > maxFactor) {break;}
-            if (legendreSymbol(p) == 1 && p != 2) {
+            if (legendreSymbol(p) == 1) {
                 ret.add(p);
             }
         }
         return ret;
+    }
+
+    private ArrayList<ArrayList<BigInteger>> buildFactorBaseRoots() {
+        factorBaseRoots = new ArrayList<>();
+        for (long p : factorBase) {
+            ArrayList<BigInteger> r = modRoot(p);
+            System.out.println(r + "^2 == " + n + " mod " + p);
+            factorBaseRoots.add(r);
+        }
+        return factorBaseRoots;
     }
 
     /**
@@ -98,6 +120,7 @@ public class QuadraticSieve {
             if (checkNum(k)) {
                 ArrayList<Integer> vector = buildFactorVector(k);
                 initialRows.add(new Row(numRows, m, k, vector));
+                System.out.println(initialRows.get(initialRows.size()-1).toString());
                 matrix[numRows] = intArrayListToIntArray(vector);
                 numRows++;
             }
@@ -136,6 +159,64 @@ public class QuadraticSieve {
             i++;
         }
         return ret;
+    }
+
+    /**
+     * Solves for x s.t. x^2 == N (mod p) using the Tonelli-Shanks algorithm
+     * @param p to solve in the congruency
+     * @return all solutions for x
+     */
+    private ArrayList<BigInteger> modRoot(BigInteger p) {
+        if (legendreSymbol(p.longValue()) != 1) {throw new InputMismatchException();}
+
+        ArrayList<BigInteger> solutions = new ArrayList<>();
+        BigInteger q = p.subtract(ONE); BigInteger s = ZERO;
+        while (q.mod(TWO).compareTo(ZERO) == 0) {
+            s = s.add(ONE);
+            q = q.divide(TWO);
+        }
+        if (s.compareTo(ONE) == 0) {
+            BigInteger r = n.modPow(p.add(ONE).divide(BigInteger.valueOf(4)), p);
+            solutions.add(r);
+            solutions.add(p.subtract(r));
+            return solutions;
+        }
+        BigInteger z = TWO;
+        while (legendreSymbol(z, p) != p.subtract(ONE).intValueExact()) { z = z.add(ONE); }
+        BigInteger c = z.modPow(q, p);
+        BigInteger r = n.modPow(q.add(ONE).divide(TWO), p);
+        BigInteger t = n.modPow(q, p);
+        BigInteger m = s;
+
+        while (true) {
+            if (t.equals(ONE)) { solutions.add(r); solutions.add(p.subtract(r)); return solutions; }
+            BigInteger i = ZERO;
+            BigInteger b = t;
+            while (!b.equals(ONE) && i.compareTo(m) < 0) {
+                //System.out.println("b " + b + ", i " + i + ", m " + m);
+                b = b.modPow(TWO, p);
+                i = i.add(ONE);
+            }
+
+            BigInteger u = c;
+            BigInteger e = m.subtract(i).subtract(ONE);
+            while (e.compareTo(ZERO) > 0) {
+                //System.out.println("u");
+                u = u.modPow(TWO, p);
+                e = e.subtract(ONE);
+            }
+
+            r = r.multiply(u).mod(p);
+            c = u.modPow(TWO, p);
+            t = t.multiply(c).mod(p);
+            m = i;
+
+            //System.out.println("p: " + p + ", r " + r + ", c " + c + ", t " + t + ", m " + m);
+        }
+    }
+
+    private ArrayList<BigInteger> modRoot(long p) {
+        return modRoot(BigInteger.valueOf(p));
     }
 
     /**
@@ -195,6 +276,15 @@ public class QuadraticSieve {
         }
         public ArrayList<Integer> getFactorVector() {
             return factorVector;
+        }
+        
+        public String toString() {
+            String r = "";
+            r += this.getIndex();
+            while (r.length() < 4) { r += " ";} r+= this.getM();
+            while (r.length() < 18) {r += " ";} r+= this.getFm();
+            while (r.length() < 40) {r += " ";} r += this.getFactorVector().toString();
+            return r;
         }
     }
 }
