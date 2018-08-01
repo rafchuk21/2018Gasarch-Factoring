@@ -2,6 +2,7 @@ package factoring;
 
 import primes.PrimeGenerator;
 import util.BigIntegerUtils;
+import util.MatrixMod2;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -31,22 +32,63 @@ public class QuadraticSieve {
         this(false);
     }
 
-    public ArrayList<Integer> factor(BigInteger n, int B) {
-        this.n = n;
-        this.B = B;
-        primes = PrimeGenerator.sieveOfEratosthenes(10000).getResult();
-        factorBase = buildFactorBase(B);
-        System.out.println(factorBase);
-        buildFactorBaseRoots();
-        System.out.println(Arrays.deepToString(factorBaseRoots.toArray()));
-        numPrimes = factorBase.size();
-        matrix = new int[numPrimes+1][numPrimes];
-        initialRows = new ArrayList<>();
-        buildMatrix();
+    public ArrayList<BigInteger> factor(BigInteger n, int B) {
+        try {
+            this.n = n;
+            this.B = B;
+            primes = PrimeGenerator.sieveOfEratosthenes(Math.max(B, 10000)).getResult();
+            factorBase = buildFactorBase(B);
+            //System.out.println(factorBase);
+            buildFactorBaseRoots();
+            //System.out.println(Arrays.deepToString(factorBaseRoots.toArray()));
+            numPrimes = factorBase.size();
+            matrix = new int[numPrimes + 1][numPrimes];
+            initialRows = new ArrayList<>();
+            buildMatrix();
 
+            MatrixMod2 mmod2 = new MatrixMod2(matrix);
+            ArrayList<Integer> dependency = mmod2.findDependency();
+            //System.out.println(initialMatrixToString());
+            //System.out.println(dependency);
 
+            BigInteger a = ONE;
+            BigInteger bsq = ONE;
+            for (int i : dependency) {
+                a = a.multiply(initialRows.get(i).getM()).mod(n);
+                bsq = bsq.multiply(initialRows.get(i).getFm());
+            }
+            BigInteger b = BigIntegerUtils.sqrt(bsq);
 
-        return null;
+            BigInteger factor = a.subtract(b).gcd(n);
+            //System.out.println(factor);
+
+            while (factor.equals(ONE) || factor.equals(n)) {
+                dependency = mmod2.nextDependency();
+                //System.out.println(dependency);
+
+                a = ONE;
+                bsq = ONE;
+                for (int i : dependency) {
+                    a = a.multiply(initialRows.get(i).getM()).mod(n);
+                    bsq = bsq.multiply(initialRows.get(i).getFm());
+                }
+                b = BigIntegerUtils.sqrt(bsq);
+
+                factor = a.subtract(b).gcd(n);
+            }
+
+            ArrayList<BigInteger> solutions = new ArrayList<>();
+            solutions.add(factor);
+            solutions.add(n.divide(factor));
+
+            return solutions;
+        } catch (IllegalArgumentException e) {
+            ArrayList<BigInteger> solutions = new ArrayList<>();
+            solutions.add(ONE);
+            solutions.add(n);
+
+            return solutions;
+        }
     }
 
     private BigInteger getNextNum(BigInteger m) {
@@ -101,7 +143,7 @@ public class QuadraticSieve {
         factorBaseRoots = new ArrayList<>();
         for (long p : factorBase) {
             ArrayList<BigInteger> r = modRoot(p);
-            System.out.println(r + "^2 == " + n + " mod " + p);
+            //System.out.println(r + "^2 == " + n + " mod " + p);
             factorBaseRoots.add(r);
         }
         return factorBaseRoots;
@@ -120,7 +162,7 @@ public class QuadraticSieve {
             if (checkNum(k)) {
                 ArrayList<Integer> vector = buildFactorVector(k);
                 initialRows.add(new Row(numRows, m, k, vector));
-                System.out.println(initialRows.get(initialRows.size()-1).toString());
+                //System.out.println(initialRows.get(initialRows.size()-1).toString());
                 matrix[numRows] = intArrayListToIntArray(vector);
                 numRows++;
             }

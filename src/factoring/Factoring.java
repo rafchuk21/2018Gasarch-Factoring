@@ -10,6 +10,7 @@ import primes.PrimeGenerator;
 
 public class Factoring {
 	private BigInteger test;
+	private BigInteger TWO = BigInteger.valueOf(2);
 	
 	public Factoring(BigInteger a) {
 		test = a;
@@ -137,7 +138,7 @@ public class Factoring {
         System.out.println(coprimes);
         //Generates primes
         ArrayList<BigInteger> primes = new ArrayList<BigInteger>();
-        for (BigInteger i = test.divide(BigInteger.valueOf(wheel)); i.multiply(BigInteger.valueOf(wheel)).compareTo(test.multiply(BigInteger.TWO))<0; i=i.add(BigInteger.ONE)) {
+        for (BigInteger i = test.divide(BigInteger.valueOf(wheel)); i.multiply(BigInteger.valueOf(wheel)).compareTo(test.multiply(TWO))<0; i=i.add(BigInteger.ONE)) {
             for (BigInteger coprime: coprimes) {
                 BigInteger prime = i.multiply(BigInteger.valueOf(wheel)).add(coprime);
                 if (prime.compareTo(test)>0 && millerRabinPrimalityTest(prime,8)) {
@@ -246,7 +247,7 @@ public class Factoring {
     public ArrayList<BigInteger> Pollardp1(BigInteger B) {
         ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
         ArrayList<BigInteger> primes = (ArrayList<BigInteger>)PrimeGenerator.naivePrimeGenerator(B).getResult();
-        BigInteger a = BigInteger.TWO;
+        BigInteger a = TWO;
         BigInteger e,f;
         for (int i=0; i<primes.size(); i++) {
             e = log(B).divide(log(primes.get(i)), BigDecimal.ROUND_HALF_UP).toBigInteger().add(BigInteger.ONE);
@@ -263,7 +264,7 @@ public class Factoring {
 
     public ArrayList<BigInteger> Quadsieve(long A, long B) {
 	    ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
-	    BigInteger x = test.sqrt().add(BigInteger.ONE);
+	    BigInteger x = BigIntegerUtils.sqrt(test).add(BigInteger.ONE);
 	    if ((x.multiply(x)).compareTo(test)<0) {
 	        x.add(BigInteger.ONE);
         }
@@ -279,13 +280,13 @@ public class Factoring {
         for (int y=0; y<tosieve.size(); y++) {
             backup.add(tosieve.get(y));
         }
-        if (tosieve.get(1).mod(BigInteger.TWO).compareTo(BigInteger.ZERO)==0) {
+        if (tosieve.get(1).mod(TWO).compareTo(BigInteger.ZERO)==0) {
             for (int y=1; y<tosieve.size(); y+=2) {
-                tosieve.set(y, tosieve.get(y).divide(BigInteger.TWO));
+                tosieve.set(y, tosieve.get(y).divide(TWO));
             }
         } else {
             for (int y=0; y<tosieve.size(); y+=2) {
-                tosieve.set(y, tosieve.get(y).divide(BigInteger.TWO));
+                tosieve.set(y, tosieve.get(y).divide(TWO));
             }
         }
         for (int i=1; i<factorbase.size(); i++) {

@@ -161,8 +161,7 @@ public class FactoringMethods {
 
     public static void main(String[] args) {
         QuadraticSieve qs = new QuadraticSieve();
-        qs.factor(new BigInteger("354256138673"), 100);
-        System.out.println(qs.getFactorBase());
-        System.out.println(qs.initialMatrixToString());
+        //354256138673
+        System.out.println(qs.factor(new BigInteger("63787"), 100));
     }
 }
