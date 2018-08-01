@@ -102,6 +102,9 @@ public class PrimeTester {
 
     public static boolean modifiedMillerRabinTest(BigInteger p, int iterations, ArrayList<Long> smallerPrimes) {
         for (Long smallerPrime : smallerPrimes ) {
+            if (p.equals(BigInteger.valueOf(smallerPrime))) {
+                return true;
+            }
             if (p.mod(BigInteger.valueOf(smallerPrime)).compareTo(BigInteger.ZERO) == 0) {
                 return false;
             }

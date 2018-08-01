@@ -100,9 +100,7 @@ public class MatrixMod2 {
     public ArrayList<Integer> nextDependency() {
         boolean carry = true;
         for (int i = 0; i < givenDependencies.length; i++) {
-            if (i == givenDependencies.length - 1 && carry) {
-                throw new IllegalArgumentException();
-            } else if (givenDependencies[i] && carry) {
+            if (givenDependencies[i] && carry) {
                 givenDependencies[i] = false;
                 carry = true;
             } else if (!givenDependencies[i] && carry) {

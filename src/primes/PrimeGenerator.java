@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import primes.PrimeTester;
 import java.util.Arrays;
+import java.util.Random;
 
 import util.*;
 
@@ -188,8 +189,8 @@ public class PrimeGenerator {
         ArrayList<BigInteger> primes = new ArrayList<BigInteger>();
         Results<ArrayList<BigInteger>> coprimeResults = CoprimeGenerator.naiveCoprimeGenerator(BigInteger.valueOf(wheel));
         ArrayList<BigInteger> coprimes = coprimeResults.getResult();
-        ArrayList<Long> smallerPrimes = (ArrayList<Long>) sieveOfEratosthenes((long) smallerPrimeLimit).getResult();
-        for (BigInteger i = n.divide(wheelBigInt); i.multiply(wheelBigInt).compareTo(n.add(n)) < 0; i = i.add(BigInteger.ONE)) {
+        ArrayList<Long> smallerPrimes = sieveOfEratosthenes((long) smallerPrimeLimit).getResult();
+        for (BigInteger i = n.divide(wheelBigInt); i.multiply(wheelBigInt).compareTo(n.multiply(BigInteger.TEN)) < 0; i = i.add(BigInteger.ONE)) {
             for (BigInteger cp : coprimes) {
                 BigInteger p = i.multiply(wheelBigInt).add(cp);
                 if (p.compareTo(n) > 0) {
@@ -283,6 +284,13 @@ public class PrimeGenerator {
         }
 
         return coprimeList;
+    }
+
+    public static BigInteger RSAgen(int bits) {
+        Random rand = new Random();
+        BigInteger p1 = wheelGenerator(2, new BigInteger(bits-1, rand).add(BigInteger.valueOf(2).pow(bits-1)), 6).getResult().get(0);
+        BigInteger p2 = wheelGenerator(2, new BigInteger(bits-1, rand).add(BigInteger.valueOf(2).pow(bits-1)), 6).getResult().get(0);
+        return p1.multiply(p2);
     }
 
     public static void main(String[] args) {

@@ -66,7 +66,7 @@ public class FactoringMethods {
         BigInteger s = BigIntegerUtils.randBigInteger(n);
         BigInteger A = s; BigInteger B = s;
         BigInteger g = ONE;
-        System.out.println(b + ", " + s);
+        //System.out.println(b + ", " + s);
         while (g.compareTo(ONE) == 0) {
             //System.out.println(A + ", " + B);
             A = (A.multiply(A).add(b)).mod(n);
@@ -162,6 +162,9 @@ public class FactoringMethods {
     public static void main(String[] args) {
         QuadraticSieve qs = new QuadraticSieve();
         //354256138673
-        System.out.println(qs.factor(new BigInteger("63787"), 100));
+        BigInteger test = PrimeGenerator.RSAgen(48);
+        System.out.println(qs.factor(test, 300, 1000000));
+        System.out.println(Arrays.toString(pollardRhoFactoring(test)));
+        System.out.println(test);
     }
 }
