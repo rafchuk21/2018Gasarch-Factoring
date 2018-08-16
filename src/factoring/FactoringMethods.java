@@ -36,7 +36,7 @@ public class FactoringMethods {
         factors[0] = x.subtract(y);
         factors[1] = x.add(y);
         long endTime = System.nanoTime();
-        System.out.println("Difference of Squares runtime:" + (endTime - startTime) + " nanoseconds");
+        //System.out.println("Difference of Squares runtime:" + (endTime - startTime) + " nanoseconds");
         return factors;
     }
 
