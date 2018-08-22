@@ -35,7 +35,7 @@ public class QuadraticThieve extends Logger {
     private final AtomicInteger speedCounter = new AtomicInteger(0);
     private final AtomicInteger speed = new AtomicInteger(0);
     private long startingTime;
-    BigInteger result = BigInteger.ONE;
+    BigInteger result = BigInteger.valueOf(-1);
 
     public QuadraticThieve(BigInteger input, int B) {
         //log("Factoring started");
@@ -48,18 +48,18 @@ public class QuadraticThieve extends Logger {
         MAX_LOOPS = B_SMOOTH * 2;
         LOGS_TIME_BY_LOOPS = B_SMOOTH / 20;
 
-        //log("Building Prime Base");
+        log("Building Prime Base");
         buildPrimeBase();
         vectorsShrinker.init(root, primeBase.length, N);
         BigInteger highestPrime = primeBase[primeBase.length - 1];
         sieveVectorBound = highestPrime.intValue();
         minimumBigPrimeLog = Math.log(highestPrime.pow(2).doubleValue());
         step = sieveVectorBound;
-        //log("Biggest prime is", highestPrime);
-        //log();
+        log("Biggest prime is", highestPrime);
+        log();
 
-        //log("Working on", threadCount, "threads");
-        //log("Start searching");
+        log("Working on", threadCount, "threads");
+        log("Start searching");
     }
 
     public QuadraticThieve(BigInteger input) {

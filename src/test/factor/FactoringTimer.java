@@ -2,6 +2,7 @@ package test.factor;
 
 import factoring.FactoringMethods;
 import imported.gazman.factor.QuadraticThieve;
+import imported.cuongvc.QuadraticSieveFactorization;
 import primes.PrimeGenerator;
 
 import java.io.File;
@@ -14,16 +15,30 @@ import java.util.ArrayList;
 public class FactoringTimer {
     public static void main(String[] args) {
         ArrayList<Integer> bitList = new ArrayList<Integer>();
-        bitList.add(8); bitList.add(12); bitList.add(16); bitList.add(20); bitList.add(24); bitList.add(28); bitList.add(32);
+        /*for (int i = 8; i < 28; i++) {
+            bitList.add(i);
+        }*/
+        for (int i = 34; i < 48; i += 2) {
+            bitList.add(i);
+        }
+
+        for (int i = 48; i <= 64; i+= 4) {
+            bitList.add(i);
+        }
 
         for (Integer i : bitList) {
-            if (i < 36) {
-                timeDiffSquares(i, 30, 15, 500);
+            System.out.println(i);
+            if (i < 34 && i > 32) {
+                timeDiffSquares(i, 4, 25, 200);
             }
-            timePollardRho(i, 30, 15, 500);
+            if (i > 32)
+                timePollardRho(i, 4, 25, 200);
             if (i > 8)
-                timeQuadraticSieve(i, 30, 15, 500);
+                timeCuongvcQuadraticSieve(i, 4, 25, 200);
         }
+
+        /*QuadraticThieve qs = new QuadraticThieve(PrimeGenerator.RSAgen(64), 500000);
+        System.out.println(qs.getResult());*/
         System.exit(1);
     }
 
@@ -32,9 +47,10 @@ public class FactoringTimer {
         long endTime;
 
         ArrayList<TimeEntry> times = new ArrayList<>();
-        BigInteger[] res;
+        BigInteger[] res = new BigInteger[2];
 
         for (BigInteger n : numbers) {
+            System.out.println(n);
             ConfidenceIntervalCalculator cicalc = new ConfidenceIntervalCalculator(2);
             while (cicalc.getSampleSize() < minSampleSize) {
                 System.gc();
@@ -47,7 +63,7 @@ public class FactoringTimer {
                 }
             }
 
-            cicalc.removeOutliers();
+            cicalc.updateStatistics();
 
             while (cicalc.getSampleSize() < maxSampleSize && (cicalc.getMarginOfError() > .05 * cicalc.getMean() || cicalc.getSampleSize() < minSampleSize)) {
                 System.gc();
@@ -56,14 +72,13 @@ public class FactoringTimer {
                 if (res[0].compareTo(n) < 0 && res[0].compareTo(BigInteger.ONE) > 0) {
                     endTime = System.nanoTime();
                     cicalc.addTime(endTime-startTime, true);
+                    cicalc.updateStatistics();
                 }
             }
 
-            cicalc.updateStatistics();
-
-            times.add(new TimeEntry(cicalc.getSampleSize(), cicalc.getMean(), cicalc.getMarginOfError(), "Difference of Squares of " + n));
+            times.add(new TimeEntry(cicalc.getSampleSize(), cicalc.getMean(), cicalc.getMarginOfError(), "Difference of Squares of " + n + ", Smallest Factor " + res[0].min(res[1])));
             System.out.println(times.size() + ":" + times.get(times.size()-1));
-            times.get(times.size()-1).writeToFile("io/FactoringTimes/Jones/DiffSquares" + bits + "Bit.txt");
+            times.get(times.size()-1).writeToFile("io/FactoringTimes/Home/DiffSquares" + bits + "Bit.txt");
         }
 
         return times;
@@ -83,9 +98,10 @@ public class FactoringTimer {
         long endTime;
 
         ArrayList<TimeEntry> times = new ArrayList<>();
-        BigInteger[] res;
+        BigInteger[] res = new BigInteger[2];
 
         for (BigInteger n : numbers) {
+            System.out.println(n);
             ConfidenceIntervalCalculator cicalc = new ConfidenceIntervalCalculator(2);
             while (cicalc.getSampleSize() < minSampleSize) {
                 System.gc();
@@ -97,7 +113,7 @@ public class FactoringTimer {
                 }
             }
 
-            cicalc.removeOutliers();
+            cicalc.updateStatistics();
 
             while (cicalc.getSampleSize() < maxSampleSize && (cicalc.getMarginOfError() > .05 * cicalc.getMean() || cicalc.getSampleSize() < minSampleSize)) {
                 System.gc();
@@ -105,15 +121,14 @@ public class FactoringTimer {
                 res = FactoringMethods.pollardRhoFactoring(n);
                 if (res[0].compareTo(n) < 0 && res[0].compareTo(BigInteger.ONE) > 0) {
                     endTime = System.nanoTime();
-                    cicalc.addTime(endTime-startTime, true);
+                    cicalc.addTime(endTime-startTime);
                 }
+                cicalc.updateStatistics();
             }
 
-            cicalc.updateStatistics();
-
-            times.add(new TimeEntry(cicalc.getSampleSize(), cicalc.getMean(), cicalc.getMarginOfError(), "Pollard Rho Method of " + n));
+            times.add(new TimeEntry(cicalc.getSampleSize(), cicalc.getMean(), cicalc.getMarginOfError(), "Pollard Rho Method of " + n + ", Smallest Factor " + res[0].min(res[1])));
             System.out.println(times.get(times.size()-1));
-            times.get(times.size()-1).writeToFile("io/FactoringTimes/Jones/PollardRho" + bits + "Bit.txt");
+            times.get(times.size()-1).writeToFile("io/FactoringTimes/Home/PollardRho" + bits + "Bit.txt");
         }
 
         return times;
@@ -128,26 +143,31 @@ public class FactoringTimer {
         return timePollardRho(numsToTest, minSampleSize, maxSampleSize, bits);
     }
 
-    private static ArrayList<TimeEntry> timeQuadraticSieve(ArrayList<BigInteger> numbers, int minSampleSize, int maxSampleSize, int bits) {
+    private static ArrayList<TimeEntry> timeGazmanQuadraticSieve(ArrayList<BigInteger> numbers, int minSampleSize, int maxSampleSize, int bits) {
         long startTime;
         long endTime;
 
         ArrayList<TimeEntry> times = new ArrayList<>();
 
+        BigInteger[] res = new BigInteger[2];
+
         for (BigInteger n : numbers) {
+            System.out.println(n);
             ConfidenceIntervalCalculator cicalc = new ConfidenceIntervalCalculator(2);
             for (int i = 0; i < minSampleSize; i++) {
+                System.out.println(i);
                 System.gc();
                 startTime = System.nanoTime();
                 QuadraticThieve qs = new QuadraticThieve(n);
                 qs.start();
                 while (qs.getResult().compareTo(BigInteger.ONE) == 0) { }
+                res[0] = qs.getResult();
                 endTime = System.nanoTime();
                 //System.out.println(cicalc.getSampleSize() + ", " + (endTime - startTime) + ", " + qs.getResult());
                 cicalc.addTime(endTime - startTime);
             }
 
-            cicalc.removeOutliers();
+            cicalc.updateStatistics();
 
             while (cicalc.getMarginOfError() > cicalc.getMean() * .05 && cicalc.getSampleSize() < maxSampleSize) {
                 System.gc();
@@ -155,32 +175,81 @@ public class FactoringTimer {
                 QuadraticThieve qs = new QuadraticThieve(n);
                 qs.start();
                 while (qs.getResult().compareTo(BigInteger.ONE) == 0) { }
+                res[0] = qs.getResult();
                 endTime = System.nanoTime();
-                cicalc.addTime(endTime - startTime, true);
+                cicalc.addTime(endTime - startTime);
+                cicalc.updateStatistics();
                 //System.out.println(cicalc.getSampleSize() + ", " + (endTime - startTime) + ", " + qs.getResult());
             }
 
-            cicalc.updateStatistics();
-
-            times.add(new TimeEntry(cicalc.getSampleSize(), cicalc.getMean(), cicalc.getMarginOfError(), "Quadratic Sieve of " + n));
+            times.add(new TimeEntry(cicalc.getSampleSize(), cicalc.getMean(), cicalc.getMarginOfError(), "Quadratic Sieve of " + n + ", Smallest Factor " + res[0].min(n.divide(res[0]))));
             System.out.println(times.get(times.size()-1));
-            times.get(times.size()-1).writeToFile("io/FactoringTimes/Jones/QuadraticSieve" + bits + "Bit.txt");
+            times.get(times.size()-1).writeToFile("io/FactoringTimes/Home/QuadraticSieve" + bits + "Bit.txt");
         }
 
         return times;
     }
 
-    private static ArrayList<TimeEntry> timeQuadraticSieve(int bits, int numNumbers, int minSampleSize, int maxSampleSize) {
+    private static ArrayList<TimeEntry> timeGazmanQuadraticSieve(int bits, int numNumbers, int minSampleSize, int maxSampleSize) {
         ArrayList<BigInteger> numsToTest = new ArrayList<>();
         for (int i = 0; i < numNumbers; i++) {
             numsToTest.add(PrimeGenerator.RSAgen(bits));
         }
 
-        return timeQuadraticSieve(numsToTest, minSampleSize, maxSampleSize, bits);
+        return timeGazmanQuadraticSieve(numsToTest, minSampleSize, maxSampleSize, bits);
     }
 
-    private static ArrayList<TimeEntry> timeQuadraticSieve(ArrayList<BigInteger> numbers) {
-        return timeQuadraticSieve(numbers, 100, 1000, -1);
+    public static ArrayList<TimeEntry> timeCuongvcQuadraticSieve(ArrayList<BigInteger> numbers, int minSampleSize, int maxSampleSize, int bits) {
+        long startTime;
+        long endTime;
+
+        ArrayList<TimeEntry> times = new ArrayList<>();
+
+        BigInteger[] res = new BigInteger[2];
+        QuadraticSieveFactorization qs;
+
+        for (BigInteger n : numbers) {
+            System.out.println(n);
+            ConfidenceIntervalCalculator cicalc = new ConfidenceIntervalCalculator(2);
+            for (int i = 0; i < minSampleSize; i++) {
+                System.out.println(i);
+                System.gc();
+                startTime = System.nanoTime();
+                qs = new QuadraticSieveFactorization();
+                res = qs.solve(n, true);
+                endTime = System.nanoTime();
+                //System.out.println(cicalc.getSampleSize() + ", " + (endTime - startTime) + ", " + qs.getResult());
+                cicalc.addTime(endTime - startTime);
+            }
+
+            cicalc.updateStatistics();
+
+            while (cicalc.getMarginOfError() > cicalc.getMean() * .05 && cicalc.getSampleSize() < maxSampleSize) {
+                System.gc();
+                startTime = System.nanoTime();
+                qs = new QuadraticSieveFactorization();
+                res = qs.solve(n, true);
+                endTime = System.nanoTime();
+                cicalc.addTime(endTime - startTime);
+                cicalc.updateStatistics();
+                //System.out.println(cicalc.getSampleSize() + ", " + (endTime - startTime) + ", " + qs.getResult());
+            }
+
+            times.add(new TimeEntry(cicalc.getSampleSize(), cicalc.getMean(), cicalc.getMarginOfError(), "Quadratic Sieve of " + n + ", Smallest Factor " + res[0].min(n.divide(res[0]))));
+            System.out.println(times.get(times.size()-1));
+            times.get(times.size()-1).writeToFile("io/FactoringTimes/Home/QuadraticSieve" + bits + "Bit.txt");
+        }
+
+        return times;
+    }
+
+    private static ArrayList<TimeEntry> timeCuongvcQuadraticSieve(int bits, int numNumbers, int minSampleSize, int maxSampleSize) {
+        ArrayList<BigInteger> numsToTest = new ArrayList<>();
+        for (int i = 0; i < numNumbers; i++) {
+            numsToTest.add(PrimeGenerator.RSAgen(bits));
+        }
+
+        return timeCuongvcQuadraticSieve(numsToTest, minSampleSize, maxSampleSize, bits);
     }
 
 
@@ -215,7 +284,7 @@ public class FactoringTimer {
             PrintWriter pw;
             try {
                 pw = new PrintWriter(new FileOutputStream(new File(path), true));
-                pw.println(descriptor.replaceAll("\\D+","") + ": " + mean + ", " + marginOfError + ", " + sampleSize);
+                pw.println(descriptor.replaceAll("[^\\d,]","") + ", " + mean + ", " + marginOfError + ", " + sampleSize);
                 pw.close();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();

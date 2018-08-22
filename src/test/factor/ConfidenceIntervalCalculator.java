@@ -6,12 +6,14 @@ public class ConfidenceIntervalCalculator {
     private final double ZSCORE = 2.0;
 
     private ArrayList<Long> values;
+    private ArrayList<Long> cleanedValues;
     private double outlierBound;
     private long mean, median, q1, q3, sd;
     private boolean statsUpToDate;
 
     public ConfidenceIntervalCalculator(ArrayList<Long> values, double outlierBound) {
         this.values = values;
+        this.cleanedValues = new ArrayList<>();
         this.outlierBound = outlierBound;
         statsUpToDate = false;
     }
@@ -34,17 +36,24 @@ public class ConfidenceIntervalCalculator {
     public void removeOutliers() {
         int initialLength = values.size();
         if (values.size() <= 10) {return;}
-        if (!statsUpToDate) { updateStatistics(); }
+        if (!statsUpToDate) { calculateMedian(); }
         long minBound = q1 - (long) (outlierBound * (q3 - q1));
         long maxBound = q3 + (long) (outlierBound * (q3 - q1));
-        while (values.get(0) < minBound) {values.remove(0);}
-        while (values.get(values.size()-1) > maxBound) {values.remove(values.size()-1);}
-        if (values.size() != initialLength) { statsUpToDate = false; }
+        cleanedValues = new ArrayList<>();
+
+        for (Long v : values) {
+            if (v > minBound && v < maxBound) {
+                cleanedValues.add(v);
+            }
+        }
     }
 
     public void updateStatistics() {
+        statsUpToDate = false;
+
+        removeOutliers();
+
         calculateMean();
-        calculateMedian();
         calculateSD();
 
         statsUpToDate = true;
@@ -54,9 +63,9 @@ public class ConfidenceIntervalCalculator {
      * Calculates the mean of the accumulated values
      */
     private void calculateMean() {
-        long mean = 0; int numValues = values.size();
-        for (Long v : values) {
-            mean += v / values.size();
+        long mean = 0; int numValues = cleanedValues.size();
+        for (Long v : cleanedValues) {
+            mean += v / cleanedValues.size();
         }
         this.mean = mean;
     }
@@ -75,8 +84,8 @@ public class ConfidenceIntervalCalculator {
      */
     private void calculateSD() {
         long sd = 0;
-        for (long v : values) {
-            sd += Math.pow((v - mean),2)/values.size();
+        for (long v : cleanedValues) {
+            sd += Math.pow((v - mean),2)/cleanedValues.size();
         }
         this.sd = (long) Math.pow(sd, .5);
     }
@@ -113,6 +122,6 @@ public class ConfidenceIntervalCalculator {
     public int getSampleSize() {return values.size();}
 
     public long getMarginOfError() {
-        return sd / (long) (Math.pow(values.size(), .5) * ZSCORE);
+        return sd / (long) (Math.pow(cleanedValues.size(), .5) * ZSCORE);
     }
 }

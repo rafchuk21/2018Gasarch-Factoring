@@ -138,7 +138,7 @@ public class Factoring {
         System.out.println(coprimes);
         //Generates primes
         ArrayList<BigInteger> primes = new ArrayList<BigInteger>();
-        for (BigInteger i = test.divide(BigInteger.valueOf(wheel)); i.multiply(BigInteger.valueOf(wheel)).compareTo(test.multiply(BigInteger.TWO)) < 0; i = i.add(BigInteger.ONE)) {
+        for (BigInteger i = test.divide(BigInteger.valueOf(wheel)); i.multiply(BigInteger.valueOf(wheel)).compareTo(test.multiply(BigInteger.valueOf(2))) < 0; i = i.add(BigInteger.ONE)) {
             for (BigInteger coprime : coprimes) {
                 BigInteger prime = i.multiply(BigInteger.valueOf(wheel)).add(coprime);
                 if (prime.compareTo(test) > 0 && millerRabinPrimalityTest(prime, 8)) {
@@ -241,7 +241,7 @@ public class Factoring {
     public ArrayList<BigInteger> Pollardp1(BigInteger B) {
         ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
         ArrayList<BigInteger> primes = (ArrayList<BigInteger>) PrimeGenerator.naivePrimeGenerator(B).getResult();
-        BigInteger a = BigInteger.TWO;
+        BigInteger a = BigInteger.valueOf(2);
         BigInteger e, f;
         for (int i = 0; i < primes.size(); i++) {
             e = log(B).divide(log(primes.get(i)), BigDecimal.ROUND_HALF_UP).toBigInteger().add(BigInteger.ONE);
@@ -258,7 +258,7 @@ public class Factoring {
 
     public ArrayList<BigInteger> Quadsieve(long A, long B, long a) {
         ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
-        BigInteger x = test.sqrt().add(BigInteger.ONE);
+        BigInteger x = BigIntegerUtils.sqrt(test).add(BigInteger.ONE);
         if ((x.multiply(x)).compareTo(test) < 0) {
             x.add(BigInteger.ONE);
         }
@@ -277,13 +277,13 @@ public class Factoring {
 
         System.out.println("start of sieve");
         //start of sieve
-        if (tosieve.get(1).mod(BigInteger.TWO).compareTo(BigInteger.ZERO) == 0) {
+        if (tosieve.get(1).mod(BigInteger.valueOf(2)).compareTo(BigInteger.ZERO) == 0) {
             for (int y = 1; y < tosieve.size(); y += 2) {
-                tosieve.set(y, tosieve.get(y).divide(BigInteger.TWO));
+                tosieve.set(y, tosieve.get(y).divide(BigInteger.valueOf(2)));
             }
         } else {
             for (int y = 0; y < tosieve.size(); y += 2) {
-                tosieve.set(y, tosieve.get(y).divide(BigInteger.TWO));
+                tosieve.set(y, tosieve.get(y).divide(BigInteger.valueOf(2)));
             }
         }
         System.out.println("Start of other numbers");
@@ -439,10 +439,10 @@ public class Factoring {
                 BigInteger factor1 = BigInteger.ONE, factor2 = BigInteger.ONE;
                 for (int j = 0; j < indices.size(); j++) {
                     factor1 = factor1.multiply((nums.get(indices.get(j))));
-                    BigInteger temp = nums.get(indices.get(j)).add(test).sqrt();
+                    BigInteger temp = BigIntegerUtils.sqrt(nums.get(indices.get(j)).add(test));
                     factor2 = factor2.multiply(temp);
                 }
-                factor1 = factor1.sqrt();
+                factor1 = BigIntegerUtils.sqrt(factor1);
                 //System.out.println(factor1 + " " + factor2);
                 BigInteger temp1 = (factor2.subtract(factor1)).gcd(test);
                 BigInteger temp2 = (factor2.add(factor1)).gcd(test);
