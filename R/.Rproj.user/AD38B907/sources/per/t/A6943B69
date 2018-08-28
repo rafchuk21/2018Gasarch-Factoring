@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1534992176464.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3375241599",
+    "id" : "A6943B69",
+    "lastKnownWriteTime" : 1534996198,
+    "last_content_update" : 1534996198748,
+    "path" : "~/GitHub/2018Gasarch-Factoring/R/InputProcessing.R",
+    "project_path" : "InputProcessing.R",
+    "properties" : {
+        "cursorPosition" : "31,57",
+        "scrollLine" : "2",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : true,
+    "source_window" : "",
+    "type" : "r_source"
+}
