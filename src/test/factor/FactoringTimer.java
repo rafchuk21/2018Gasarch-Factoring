@@ -18,23 +18,25 @@ public class FactoringTimer {
         /*for (int i = 8; i < 28; i++) {
             bitList.add(i);
         }*/
-        for (int i = 34; i < 48; i += 2) {
+        /*for (int i = 34; i < 48; i += 2) {
+            bitList.add(i);
+        }*/
+
+        /*for (int i = 48; i <= 64; i+= 4) {
+            bitList.add(i);
+        }*/
+        for (int i = 60; i <= 72; i+=4) {
             bitList.add(i);
         }
-
-        for (int i = 48; i <= 64; i+= 4) {
-            bitList.add(i);
-        }
-
         for (Integer i : bitList) {
             System.out.println(i);
             if (i < 34 && i > 32) {
                 timeDiffSquares(i, 4, 25, 200);
             }
-            if (i > 32)
-                timePollardRho(i, 4, 25, 200);
+            if (i > 60)
+                timePollardRho(i, 10, 1, 200);
             if (i > 8)
-                timeCuongvcQuadraticSieve(i, 4, 25, 200);
+                timeCuongvcQuadraticSieve(i, 10, 1, 200);
         }
 
         /*QuadraticThieve qs = new QuadraticThieve(PrimeGenerator.RSAgen(64), 500000);

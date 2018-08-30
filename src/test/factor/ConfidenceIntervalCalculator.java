@@ -35,14 +35,14 @@ public class ConfidenceIntervalCalculator {
      */
     public void removeOutliers() {
         int initialLength = values.size();
-        if (values.size() <= 10) {return;}
+        if (values.size() <= 10) {cleanedValues = new ArrayList(values); return;}
         if (!statsUpToDate) { calculateMedian(); }
         long minBound = q1 - (long) (outlierBound * (q3 - q1));
         long maxBound = q3 + (long) (outlierBound * (q3 - q1));
         cleanedValues = new ArrayList<>();
 
         for (Long v : values) {
-            if (v > minBound && v < maxBound) {
+            if (v > minBound && v < maxBound || values.size() < 10) {
                 cleanedValues.add(v);
             }
         }

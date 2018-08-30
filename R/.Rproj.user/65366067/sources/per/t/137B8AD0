@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1535669952754.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1394897220",
+    "id" : "137B8AD0",
+    "lastKnownWriteTime" : 1535672189,
+    "last_content_update" : 1535672189963,
+    "path" : "~/2018Gasarch-Factoring/2018Gasarch-Factoring/R/InputProcessing.R",
+    "project_path" : "InputProcessing.R",
+    "properties" : {
+        "cursorPosition" : "37,249",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 1,
+    "source_on_save" : true,
+    "source_window" : "",
+    "type" : "r_source"
+}
